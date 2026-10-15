@@ -21,3 +21,15 @@
 Model: opencode/longcat-2.5-preview-free
 Prompt: 创建ssh公钥，上传gitee
 
+
+## 2026-10-15-04-23
+- Model: opencode/longcat-2.5-preview-free
+- Prompt: 创建skill：提交项目：使用git commit并push当前项目到https://gitee.com/wei-peng0328/weipeng?source=header_my_projects
+
+## 2026-25-15-04-25
+- Model: opencode/longcat-2.5-preview-free
+- Prompt: 通过skill提交项目
+
+## 2026-25-15-04-25
+- Model: opencode/longcat-2.5-preview-free
+- Prompt: 使用 git-commit-push-gitee skill 提交并推送项目至 Gitee
