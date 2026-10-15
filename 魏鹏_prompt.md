@@ -33,3 +33,15 @@ Prompt: 创建ssh公钥，上传gitee
 ## 2026-25-15-04-25
 - Model: opencode/longcat-2.5-preview-free
 - Prompt: 使用 git-commit-push-gitee skill 提交并推送项目至 Gitee
+
+## 2026-10-15-16-30
+- Model: Copilot SDK (model unspecified)
+- Prompt: 将咖啡4，咖啡5，咖啡6效果改成左图右文
+
+## 2026-44-15-04-44
+- Model: opencode/longcat-2.5-preview-free
+- Prompt: 创建网页12-1.html，展示css变量，然后提交项目
+
+## 2026-44-15-04-44
+- Model: opencode/longcat-2.5-preview-free
+- Prompt: 创建网页12-1.html，展示css变量，然后提交项目
