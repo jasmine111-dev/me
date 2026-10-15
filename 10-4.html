@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>媒体查询响应式布局</title>
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			min-width: 320px;
+			min-height: 100vh;
+			margin: 0;
+			background: #f2f4f1;
+			color: #202824;
+			font-family: "Microsoft YaHei", sans-serif;
+		}
+
+		main {
+			width: min(100% - 32px, 1280px);
+			margin: 0 auto;
+			padding: 32px 0;
+		}
+
+		h1 {
+			margin: 0 0 24px;
+			font-size: 32px;
+		}
+
+		.grid {
+			display: grid;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: 12px;
+		}
+
+		.tile {
+			aspect-ratio: 1;
+			display: grid;
+			place-items: center;
+			border-radius: 6px;
+			color: #fff;
+			font-size: 24px;
+			font-weight: 700;
+		}
+
+		.tile:nth-child(1) { background: #d6533c; }
+		.tile:nth-child(2) { background: #df8b28; }
+		.tile:nth-child(3) { background: #879c35; }
+		.tile:nth-child(4) { background: #298477; }
+		.tile:nth-child(5) { background: #287e9b; }
+		.tile:nth-child(6) { background: #536ca2; }
+		.tile:nth-child(7) { background: #765d91; }
+		.tile:nth-child(8) { background: #a34f70; }
+
+		@media (min-width: 600px) {
+			.grid {
+				grid-template-columns: repeat(4, minmax(0, 1fr));
+			}
+		}
+
+		@media (min-width: 900px) {
+			.grid {
+				grid-template-columns: repeat(6, minmax(0, 1fr));
+			}
+		}
+
+		@media (min-width: 1200px) {
+			.grid {
+				grid-template-columns: repeat(8, minmax(0, 1fr));
+			}
+		}
+	</style>
+</head>
+<body>
+	<main>
+		<h1>魏鹏</h1>
+		<section class="grid" aria-label="八个响应式盒子">
+			<div class="tile">1</div>
+			<div class="tile">2</div>
+			<div class="tile">3</div>
+			<div class="tile">4</div>
+			<div class="tile">5</div>
+			<div class="tile">6</div>
+			<div class="tile">7</div>
+			<div class="tile">8</div>
+		</section>
+	</main>
+</body>
+</html>

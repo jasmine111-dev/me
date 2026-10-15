@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>CSS 动画幻灯片 - 魏鹏</title>
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			min-height: 100vh;
+			margin: 0;
+			display: grid;
+			place-items: center;
+			padding: 40px 20px;
+			color: #202a2a;
+			background-color: #edf1ef;
+			background-image: radial-gradient(#d5ddda 0.8px, transparent 0.8px);
+			background-size: 18px 18px;
+			font-family: "Microsoft YaHei", sans-serif;
+		}
+
+		.page {
+			width: min(100%, 820px);
+		}
+
+		.heading {
+			margin: 0 0 20px;
+		}
+
+		.eyebrow {
+			margin: 0 0 8px;
+			color: #167d72;
+			font-size: 12px;
+			font-weight: 700;
+			letter-spacing: 2px;
+		}
+
+		h1 {
+			margin: 0;
+			font-size: 28px;
+		}
+
+		.carousel {
+			position: relative;
+			height: clamp(390px, 55vw, 560px);
+			overflow: hidden;
+			background: #101414;
+			border: 1px solid #d7dfdc;
+			box-shadow: 0 18px 50px rgb(32 42 42 / 12%);
+		}
+
+		.track {
+			width: 400%;
+			height: 100%;
+			display: flex;
+			animation: slide-track 12s infinite ease-in-out;
+		}
+
+		.slide {
+			flex: 0 0 25%;
+			min-width: 0;
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+			margin: 0;
+		}
+
+		.slide img {
+			display: block;
+			width: 100%;
+			min-height: 0;
+			flex: 1;
+			object-fit: cover;
+		}
+
+		.caption {
+			min-height: 104px;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 20px;
+			padding: 18px 24px;
+			background: #101414;
+			color: #fff;
+		}
+
+		.caption h2 {
+			margin: 0;
+			font-size: 20px;
+		}
+
+		.caption p {
+			margin: 6px 0 0;
+			color: #c1ccca;
+			font-size: 13px;
+		}
+
+		.author {
+			flex: 0 0 auto;
+			padding-left: 18px;
+			border-left: 1px solid #56615f;
+			color: #fff;
+			font-size: 14px;
+			font-weight: 700;
+		}
+
+		@keyframes slide-track {
+			0%, 20% {
+				transform: translateX(0);
+			}
+			25%, 45% {
+				transform: translateX(-25%);
+			}
+			50%, 70% {
+				transform: translateX(-50%);
+			}
+			75%, 100% {
+				transform: translateX(-75%);
+			}
+		}
+
+		@media (max-width: 520px) {
+			body {
+				padding: 24px 16px;
+			}
+
+			h1 {
+				font-size: 24px;
+			}
+
+			.carousel {
+				height: min(72vh, 500px);
+				min-height: 360px;
+			}
+
+			.caption {
+				min-height: 96px;
+				padding: 16px;
+			}
+
+			.caption h2 {
+				font-size: 17px;
+			}
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			.track {
+				animation: none;
+				transform: translateX(0);
+			}
+		}
+	</style>
+</head>
+<body>
+	<main class="page">
+		<header class="heading">
+			<p class="eyebrow">CSS KEYFRAMES / 01—03</p>
+			<h1>动画幻灯片</h1>
+		</header>
+		<section class="carousel" aria-label="自动播放的图片幻灯片">
+				<div class="track">
+					<figure class="slide">
+						<img src="./img/1.jpg" alt="飞机在大型机库内进行维护">
+						<figcaption class="caption">
+							<div>
+								<h2>逐梦蓝天</h2>
+								<p>航空制造与维护</p>
+							</div>
+							<span class="author">魏鹏</span>
+						</figcaption>
+					</figure>
+					<figure class="slide">
+						<img src="./img/2.jpg" alt="广阔的太阳能光伏园区">
+						<figcaption class="caption">
+							<div>
+								<h2>绿色能源</h2>
+								<p>阳光汇成可持续未来</p>
+							</div>
+							<span class="author">魏鹏</span>
+						</figcaption>
+					</figure>
+					<figure class="slide">
+						<img src="./img/3.jpg" alt="中国与埃及领导人会晤">
+						<figcaption class="caption">
+							<div>
+								<h2>携手同行</h2>
+								<p>交流合作，共创未来</p>
+							</div>
+							<span class="author">魏鹏</span>
+						</figcaption>
+					</figure>
+					<figure class="slide" aria-hidden="true">
+						<img src="./img/1.jpg" alt="">
+						<figcaption class="caption">
+							<div>
+								<h2>逐梦蓝天</h2>
+								<p>航空制造与维护</p>
+							</div>
+							<span class="author">魏鹏</span>
+						</figcaption>
+					</figure>
+				</div>
+		</section>
+	</main>
+</body>
+</html>

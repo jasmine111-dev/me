@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D 立体相册 · 魏鹏</title>
+    <style>
+        :root {
+            --ink: #1e2a3a;
+            --muted: #647083;
+            --paper: #fffdf8;
+            --line: #e8e1d5;
+            --coral: #e87861;
+            --blue: #5077a9;
+            --blue-deep: #294b70;
+            --yellow: #f5c96b;
+            --shadow: 0 22px 60px rgba(38, 57, 77, 0.12);
+            --album-angle: 0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            color: var(--ink);
+            background: #f1ede5;
+            font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
+            line-height: 1.6;
+        }
+
+        body::before {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            content: "";
+            opacity: 0.5;
+            background-image: linear-gradient(rgba(80, 119, 169, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(80, 119, 169, 0.05) 1px, transparent 1px);
+            background-size: 32px 32px;
+            mask-image: linear-gradient(to bottom, black, transparent 75%);
+        }
+
+        .魏鹏_topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: min(1180px, calc(100% - 40px));
+            margin: 0 auto;
+            padding: 28px 0 18px;
+        }
+
+        .魏鹏_topbar h2 {
+            margin: 0;
+            color: var(--blue-deep);
+            font-family: Georgia, "Noto Serif SC", "Songti SC", serif;
+            font-size: 1.6rem;
+        }
+
+        .魏鹏_home-link {
+            padding: 8px 16px;
+            border: 1px solid var(--line);
+            border-radius: 2px;
+            color: var(--muted);
+            background: var(--paper);
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: border-color 180ms ease, color 180ms ease;
+        }
+
+        .魏鹏_home-link:hover {
+            border-color: var(--coral);
+            color: var(--coral);
+        }
+
+        .魏鹏_page-shell {
+            width: min(1180px, calc(100% - 40px));
+            margin: 0 auto;
+        }
+
+        .魏鹏_hero {
+            position: relative;
+            overflow: hidden;
+            padding: 56px clamp(28px, 7vw, 92px);
+            border-radius: 4px;
+            background: var(--blue-deep);
+            box-shadow: var(--shadow);
+        }
+
+        .魏鹏_hero::after {
+            position: absolute;
+            right: -100px;
+            bottom: -190px;
+            width: 430px;
+            height: 430px;
+            content: "";
+            border: 1px solid rgba(245, 201, 107, 0.52);
+            border-radius: 50%;
+            box-shadow: 0 0 0 34px rgba(245, 201, 107, 0.08), 0 0 0 70px rgba(245, 201, 107, 0.06);
+        }
+
+        .魏鹏_hero p {
+            margin: 0 0 14px;
+            color: var(--yellow);
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+        }
+
+        .魏鹏_hero h1 {
+            position: relative;
+            z-index: 1;
+            max-width: 680px;
+            margin: 0 0 18px;
+            color: var(--paper);
+            font-family: Georgia, "Noto Serif SC", "Songti SC", serif;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            line-height: 1.15;
+        }
+
+        .魏鹏_hero .魏鹏_lead {
+            position: relative;
+            z-index: 1;
+            max-width: 560px;
+            margin: 0;
+            color: rgba(255, 253, 248, 0.76);
+            font-size: 1rem;
+        }
+
+        .魏鹏_section {
+            margin: 56px 0;
+        }
+
+        .魏鹏_section-heading {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 24px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid var(--line);
+        }
+
+        .魏鹏_section-heading h3 {
+            margin: 0;
+            color: var(--blue-deep);
+            font-family: Georgia, "Noto Serif SC", "Songti SC", serif;
+            font-size: 1.7rem;
+        }
+
+        .魏鹏_section-heading span {
+            color: var(--muted);
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        .魏鹏_album-stage {
+            position: relative;
+            display: grid;
+            min-height: 480px;
+            place-items: center;
+            overflow: hidden;
+            border-radius: 6px;
+            background: linear-gradient(180deg, #2c3e55 0%, #1a2636 100%);
+            box-shadow: var(--shadow);
+            perspective: 1200px;
+        }
+
+        .魏鹏_album-stage::before {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            width: 420px;
+            height: 60px;
+            content: "";
+            transform: translateX(-50%);
+            border-radius: 50%;
+            background: radial-gradient(ellipse, rgba(0, 0, 0, 0.45) 0%, transparent 70%);
+        }
+
+        .魏鹏_album-scene {
+            position: relative;
+            width: 260px;
+            height: 340px;
+            transform-style: preserve-3d;
+            transform: rotateY(var(--album-angle));
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .魏鹏_album-item {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            border: 6px solid var(--paper);
+            border-radius: 4px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+            backface-visibility: hidden;
+        }
+
+        .魏鹏_album-item img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .魏鹏_album-item .魏鹏_caption {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            padding: 10px 14px;
+            color: var(--paper);
+            background: linear-gradient(transparent, rgba(26, 38, 54, 0.85));
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .魏鹏_album-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .魏鹏_btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 48px;
+            min-height: 48px;
+            padding: 0 20px;
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            color: var(--blue-deep);
+            background: var(--paper);
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 180ms ease;
+        }
+
+        .魏鹏_btn:hover {
+            border-color: var(--coral);
+            color: var(--paper);
+            background: var(--coral);
+            transform: translateY(-2px);
+        }
+
+        .魏鹏_btn-toggle {
+            min-width: auto;
+            color: var(--paper);
+            background: var(--blue);
+        }
+
+        .魏鹏_btn-toggle:hover {
+            background: var(--blue-deep);
+        }
+
+        .魏鹏_album-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .魏鹏_dot {
+            width: 10px;
+            height: 10px;
+            padding: 0;
+            border: none;
+            border-radius: 50%;
+            background: var(--line);
+            cursor: pointer;
+            transition: all 180ms ease;
+        }
+
+        .魏鹏_dot.active {
+            background: var(--coral);
+            transform: scale(1.3);
+        }
+
+        .魏鹏_album-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 18px;
+            padding: 14px 20px;
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            background: var(--paper);
+        }
+
+        .魏鹏_album-info .魏鹏_title {
+            color: var(--blue-deep);
+            font-weight: 800;
+        }
+
+        .魏鹏_album-info .魏鹏_counter {
+            color: var(--muted);
+            font-family: Consolas, monospace;
+            font-size: 0.9rem;
+        }
+
+        .魏鹏_grid-section {
+            margin: 56px 0;
+        }
+
+        .魏鹏_thumb-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 14px;
+        }
+
+        .魏鹏_thumb {
+            position: relative;
+            overflow: hidden;
+            border: 4px solid var(--paper);
+            border-radius: 4px;
+            box-shadow: 0 6px 16px rgba(38, 57, 77, 0.12);
+            cursor: pointer;
+            transition: transform 200ms ease, box-shadow 200ms ease;
+            transform-style: preserve-3d;
+        }
+
+        .魏鹏_thumb:hover {
+            transform: translateY(-6px) rotateX(4deg);
+            box-shadow: 0 16px 30px rgba(38, 57, 77, 0.2);
+        }
+
+        .魏鹏_thumb img {
+            display: block;
+            width: 100%;
+            height: 130px;
+            object-fit: cover;
+        }
+
+        .魏鹏_thumb .魏鹏_thumb-label {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            padding: 6px 10px;
+            color: var(--paper);
+            background: linear-gradient(transparent, rgba(26, 38, 54, 0.8));
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .魏鹏_footer {
+            padding: 0 0 34px;
+            color: var(--muted);
+            font-size: 0.78rem;
+            text-align: center;
+        }
+
+        @media (max-width: 780px) {
+            .魏鹏_topbar,
+            .魏鹏_page-shell {
+                width: min(100% - 28px, 620px);
+            }
+
+            .魏鹏_section-heading {
+                display: block;
+            }
+
+            .魏鹏_section-heading span {
+                display: block;
+                margin-top: 6px;
+            }
+
+            .魏鹏_album-stage {
+                min-height: 380px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="魏鹏_topbar">
+        <h2>3D 立体相册</h2>
+        <a class="魏鹏_home-link" href="index.html">返回首页</a>
+    </header>
+
+    <main class="魏鹏_page-shell">
+        <section class="魏鹏_hero">
+            <p>3D PHOTO ALBUM</p>
+            <h1>3D 立体相册</h1>
+            <p class="魏鹏_lead">利用 CSS3 的 transform-style: preserve-3d 与 rotateY，将照片沿圆环排布成圆柱相册。支持自动旋转、按钮切换与缩略图点击定位，配合透视与阴影营造真实的立体空间感。</p>
+        </section>
+
+        <section class="魏鹏_section">
+            <div class="魏鹏_section-heading">
+                <h3>立体旋转相册</h3>
+                <span>preserve-3d + rotateY</span>
+            </div>
+            <div class="魏鹏_album-stage">
+                <div class="魏鹏_album-scene" id="魏鹏_scene">
+                    <div class="魏鹏_album-item" style="transform: rotateY(0deg) translateZ(300px);">
+                        <img src="img/1.jpg" alt="相册照片1">
+                        <div class="魏鹏_caption">校园风景</div>
+                    </div>
+                    <div class="魏鹏_album-item" style="transform: rotateY(45deg) translateZ(300px);">
+                        <img src="img/2.jpg" alt="相册照片2">
+                        <div class="魏鹏_caption">课堂记录</div>
+                    </div>
+                    <div class="魏鹏_album-item" style="transform: rotateY(90deg) translateZ(300px);">
+                        <img src="img/3.jpg" alt="相册照片3">
+                        <div class="魏鹏_caption">设计作品</div>
+                    </div>
+                    <div class="魏鹏_album-item" style="transform: rotateY(135deg) translateZ(300px);">
+                        <img src="img/a1.jpg.jpg" alt="相册照片4">
+                        <div class="魏鹏_caption">网页练习</div>
+                    </div>
+                    <div class="魏鹏_album-item" style="transform: rotateY(180deg) translateZ(300px);">
+                        <img src="img/a2.jpg.jpg" alt="相册照片5">
+                        <div class="魏鹏_caption">项目展示</div>
+                    </div>
+                    <div class="魏鹏_album-item" style="transform: rotateY(225deg) translateZ(300px);">
+                        <img src="img/a3.jpg.jpg" alt="相册照片6">
+                        <div class="魏鹏_caption">学习笔记</div>
+                    </div>
+                    <div class="魏鹏_album-item" style="transform: rotateY(270deg) translateZ(300px);">
+                        <img src="img/1.jpg" alt="相册照片7">
+                        <div class="魏鹏_caption">校园一角</div>
+                    </div>
+                    <div class="魏鹏_album-item" style="transform: rotateY(315deg) translateZ(300px);">
+                        <img src="img/2.jpg" alt="相册照片8">
+                        <div class="魏鹏_caption">实践成果</div>
+                    </div>
+                </div>
+            </div>
+            <div class="魏鹏_album-controls">
+                <button class="魏鹏_btn" id="魏鹏_prev" aria-label="上一张">&#8592;</button>
+                <button class="魏鹏_btn 魏鹏_btn-toggle" id="魏鹏_toggle">暂停</button>
+                <button class="魏鹏_btn" id="魏鹏_next" aria-label="下一张">&#8594;</button>
+            </div>
+            <div class="魏鹏_album-dots" id="魏鹏_dots"></div>
+            <div class="魏鹏_album-info">
+                <span class="魏鹏_title" id="魏鹏_caption">校园风景</span>
+                <span class="魏鹏_counter" id="魏鹏_counter">1 / 8</span>
+            </div>
+        </section>
+
+        <section class="魏鹏_grid-section">
+            <div class="魏鹏_section-heading">
+                <h3>全部照片</h3>
+                <span>点击缩略图定位到对应照片</span>
+            </div>
+            <div class="魏鹏_thumb-grid" id="魏鹏_thumbs">
+                <div class="魏鹏_thumb" data-index="0"><img src="img/1.jpg" alt="缩略图1"><span class="魏鹏_thumb-label">校园风景</span></div>
+                <div class="魏鹏_thumb" data-index="1"><img src="img/2.jpg" alt="缩略图2"><span class="魏鹏_thumb-label">课堂记录</span></div>
+                <div class="魏鹏_thumb" data-index="2"><img src="img/3.jpg" alt="缩略图3"><span class="魏鹏_thumb-label">设计作品</span></div>
+                <div class="魏鹏_thumb" data-index="3"><img src="img/a1.jpg.jpg" alt="缩略图4"><span class="魏鹏_thumb-label">网页练习</span></div>
+                <div class="魏鹏_thumb" data-index="4"><img src="img/a2.jpg.jpg" alt="缩略图5"><span class="魏鹏_thumb-label">项目展示</span></div>
+                <div class="魏鹏_thumb" data-index="5"><img src="img/a3.jpg.jpg" alt="缩略图6"><span class="魏鹏_thumb-label">学习笔记</span></div>
+                <div class="魏鹏_thumb" data-index="6"><img src="img/1.jpg" alt="缩略图7"><span class="魏鹏_thumb-label">校园一角</span></div>
+                <div class="魏鹏_thumb" data-index="7"><img src="img/2.jpg" alt="缩略图8"><span class="魏鹏_thumb-label">实践成果</span></div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="魏鹏_footer">魏鹏 · 《高级网页设计》课堂实践 · 2026</footer>
+
+    <script>
+        const 魏鹏_photos = [
+            { caption: "校园风景", src: "img/1.jpg" },
+            { caption: "课堂记录", src: "img/2.jpg" },
+            { caption: "设计作品", src: "img/3.jpg" },
+            { caption: "网页练习", src: "img/a1.jpg.jpg" },
+            { caption: "项目展示", src: "img/a2.jpg.jpg" },
+            { caption: "学习笔记", src: "img/a3.jpg.jpg" },
+            { caption: "校园一角", src: "img/1.jpg" },
+            { caption: "实践成果", src: "img/2.jpg" }
+        ];
+
+        const 魏鹏_step = 360 / 魏鹏_photos.length;
+        let 魏鹏_current = 0;
+        let 魏鹏_autoTimer = null;
+        let 魏鹏_playing = true;
+
+        const 魏鹏_root = document.documentElement;
+        const 魏鹏_dotsBox = document.getElementById("魏鹏_dots");
+        const 魏鹏_caption = document.getElementById("魏鹏_caption");
+        const 魏鹏_counter = document.getElementById("魏鹏_counter");
+        const 魏鹏_toggleBtn = document.getElementById("魏鹏_toggle");
+
+        魏鹏_photos.forEach(function (_, 魏鹏_i) {
+            const 魏鹏_d = document.createElement("button");
+            魏鹏_d.className = "魏鹏_dot" + (魏鹏_i === 0 ? " active" : "");
+            魏鹏_d.setAttribute("aria-label", "第 " + (魏鹏_i + 1) + " 张");
+            魏鹏_d.addEventListener("click", function () {
+                魏鹏_goTo(魏鹏_i);
+            });
+            魏鹏_dotsBox.appendChild(魏鹏_d);
+        });
+
+        const 魏鹏_dots = 魏鹏_dotsBox.querySelectorAll(".魏鹏_dot");
+
+        function 魏鹏_render() {
+            魏鹏_root.style.setProperty("--album-angle", (-魏鹏_current * 魏鹏_step) + "deg");
+            魏鹏_caption.textContent = 魏鹏_photos[魏鹏_current].caption;
+            魏鹏_counter.textContent = (魏鹏_current + 1) + " / " + 魏鹏_photos.length;
+            魏鹏_dots.forEach(function (魏鹏_d, 魏鹏_i) {
+                魏鹏_d.classList.toggle("active", 魏鹏_i === 魏鹏_current);
+            });
+        }
+
+        function 魏鹏_goTo(魏鹏_i) {
+            魏鹏_current = 魏鹏_i;
+            魏鹏_render();
+        }
+
+        function 魏鹏_next() {
+            魏鹏_current = (魏鹏_current + 1) % 魏鹏_photos.length;
+            魏鹏_render();
+        }
+
+        function 魏鹏_prev() {
+            魏鹏_current = (魏鹏_current - 1 + 魏鹏_photos.length) % 魏鹏_photos.length;
+            魏鹏_render();
+        }
+
+        function 魏鹏_play() {
+            魏鹏_playing = true;
+            魏鹏_toggleBtn.textContent = "暂停";
+            魏鹏_autoTimer = setInterval(魏鹏_next, 2500);
+        }
+
+        function 魏鹏_pause() {
+            魏鹏_playing = false;
+            魏鹏_toggleBtn.textContent = "播放";
+            clearInterval(魏鹏_autoTimer);
+        }
+
+        document.getElementById("魏鹏_next").addEventListener("click", function () {
+            魏鹏_next();
+        });
+
+        document.getElementById("魏鹏_prev").addEventListener("click", function () {
+            魏鹏_prev();
+        });
+
+        魏鹏_toggleBtn.addEventListener("click", function () {
+            if (魏鹏_playing) {
+                魏鹏_pause();
+            } else {
+                魏鹏_play();
+            }
+        });
+
+        document.getElementById("魏鹏_thumbs").addEventListener("click", function (魏鹏_e) {
+            const 魏鹏_thumb = 魏鹏_e.target.closest(".魏鹏_thumb");
+            if (魏鹏_thumb) {
+                魏鹏_goTo(parseInt(魏鹏_thumb.dataset.index, 10));
+            }
+        });
+
+        魏鹏_render();
+        魏鹏_play();
+    </script>
+</body>
+</html>

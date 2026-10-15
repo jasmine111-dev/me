@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f4efe8">
+    <title>两杯咖啡 · 图片效果集</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f4efe8;
+            color: #30251f;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+        }
+
+        .page {
+            width: min(1120px, calc(100% - 48px));
+            margin: 0 auto;
+            padding: 72px 0 80px;
+        }
+
+        .intro {
+            margin-bottom: 34px;
+            text-align: center;
+        }
+
+        .eyebrow {
+            margin: 0 0 12px;
+            color: #9a7152;
+            font-size: 12px;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-family: Georgia, "Songti SC", serif;
+            font-size: clamp(32px, 5vw, 52px);
+            font-weight: 500;
+            letter-spacing: 0.08em;
+        }
+
+        .subtitle {
+            margin: 14px 0 0;
+            color: #88796e;
+            font-size: 14px;
+            letter-spacing: 0.08em;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 24px;
+        }
+
+        .card {
+            min-width: 0;
+            overflow: hidden;
+            background: #fffdf9;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(74, 49, 32, 0.08);
+        }
+
+        .photo {
+            position: relative;
+            overflow: hidden;
+            aspect-ratio: 3 / 2;
+            background: #dfd4c8;
+        }
+
+        .photo img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 650ms ease, filter 650ms ease, clip-path 650ms ease;
+        }
+
+        .photo::after {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 45%, rgba(30, 20, 15, 0.55));
+            content: "";
+            opacity: 0.8;
+            transition: opacity 400ms ease;
+            pointer-events: none;
+        }
+
+        .photo-label {
+            position: absolute;
+            z-index: 1;
+            right: 18px;
+            bottom: 16px;
+            left: 18px;
+            color: #fff;
+            font-family: Georgia, "Songti SC", serif;
+            font-size: 18px;
+            letter-spacing: 0.08em;
+            text-shadow: 0 1px 8px rgba(0, 0, 0, 0.28);
+            transition: transform 400ms ease;
+        }
+
+        .card:hover .photo-label {
+            transform: translateY(-4px);
+        }
+
+        .card:nth-child(1):hover img {
+            transform: scale(1.14);
+        }
+
+        .card:nth-child(2) img {
+            filter: grayscale(0.72);
+        }
+
+        .card:nth-child(2):hover img {
+            filter: grayscale(0);
+            transform: scale(1.06);
+        }
+
+        .card:nth-child(3):hover img {
+            transform: scale(1.1) rotate(2deg);
+            filter: saturate(1.25);
+        }
+
+        .card:nth-child(4) img {
+            filter: sepia(0.25) contrast(0.94);
+        }
+
+        .card:nth-child(4):hover img {
+            filter: sepia(0) contrast(1.08);
+            transform: scale(1.08);
+        }
+
+        .card:nth-child(5) img {
+            clip-path: inset(7% 7% 7% 7%);
+        }
+
+        .card:nth-child(5):hover img {
+            clip-path: inset(0);
+            transform: scale(1.04);
+        }
+
+        .card:nth-child(6) img {
+            filter: brightness(0.82) saturate(0.85);
+        }
+
+        .card:nth-child(6):hover img {
+            filter: brightness(1.08) saturate(1.2);
+            transform: scale(1.09);
+        }
+
+        .card-copy {
+            padding: 16px 18px 18px;
+        }
+
+        .card-copy h2 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .card-copy p {
+            margin: 7px 0 0;
+            color: #8b7d72;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .about {
+            display: grid;
+            grid-template-columns: minmax(0, 1.6fr) minmax(200px, 0.8fr);
+            gap: 30px;
+            align-items: center;
+            margin: 0 0 38px;
+            padding: 30px 34px;
+            border: 1px solid rgba(154, 113, 82, 0.18);
+            border-radius: 12px;
+            background: rgba(255, 253, 249, 0.72);
+        }
+
+        .about h2 {
+            margin: 0 0 12px;
+            font-family: Georgia, "Songti SC", serif;
+            font-size: 24px;
+            font-weight: 500;
+            letter-spacing: 0.06em;
+        }
+
+        .about p {
+            margin: 0;
+            color: #76685d;
+            font-size: 14px;
+            line-height: 1.9;
+        }
+
+        .about-note {
+            padding-left: 24px;
+            border-left: 1px solid rgba(154, 113, 82, 0.3);
+            color: #9a7152;
+            font-family: Georgia, "Songti SC", serif;
+            font-size: 15px;
+            line-height: 1.8;
+            letter-spacing: 0.06em;
+        }
+
+        footer {
+            margin-top: 34px;
+            color: #9a8c80;
+            font-family: Georgia, "Songti SC", serif;
+            font-size: 12px;
+            letter-spacing: 0.16em;
+            text-align: center;
+        }
+
+        @media (max-width: 760px) {
+            .page {
+                width: min(680px, calc(100% - 32px));
+                padding-top: 48px;
+            }
+
+            .gallery {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 16px;
+            }
+
+            .about {
+                grid-template-columns: 1fr;
+                gap: 18px;
+                padding: 24px;
+            }
+
+            .about-note {
+                padding: 0;
+                border-left: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .gallery {
+                grid-template-columns: 1fr;
+                gap: 18px;
+            }
+
+            .card-copy {
+                padding: 14px 16px 16px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <header class="intro">
+            <p class="eyebrow">A little coffee, a little calm</p>
+            <h1>两杯咖啡</h1>
+            <p class="subtitle">六段关于香气、光影与慢生活的记录</p>
+        </header>
+
+        <section class="about" aria-labelledby="about-title">
+            <div>
+                <h2 id="about-title">关于两杯咖啡</h2>
+                <p>你好，欢迎来到两杯咖啡。我们相信，一杯好咖啡不只是日常里的提神选择，也可以是让脚步慢下来、好好享受片刻生活的小小仪式。这里有咖啡豆烘焙后的醇香、细腻温柔的奶泡，也有鲜花与阳光相伴的自在氛围。无论你想安静独处、与朋友聊天，还是给忙碌的一天按下暂停键，都希望这里能成为你乐意停留的角落。</p>
+            </div>
+            <p class="about-note">用一杯咖啡的时间，<br>把平凡日子过得更有香气。</p>
+        </section>
+
+        <section class="gallery" aria-label="咖啡图片集">
+            <article class="card">
+                <div class="photo">
+                    <img src="./咖啡/咖啡1.png" alt="木桌上的咖啡与鲜花" loading="lazy">
+                    <span class="photo-label">晨间甜点</span>
+                </div>
+                <div class="card-copy">
+                    <h2>01 · 慢一点的早晨</h2>
+                    <p>轻轻放大，发现早餐里的小小细节。</p>
+                </div>
+            </article>
+
+            <article class="card">
+                <div class="photo">
+                    <img src="./咖啡/咖啡2.jpeg" alt="木桌上摆放着咖啡和白色花朵" loading="lazy">
+                    <span class="photo-label">花与咖啡</span>
+                </div>
+                <div class="card-copy">
+                    <h2>02 · 一束花的陪伴</h2>
+                    <p>从复古黑白到明亮彩色，感受色彩变化。</p>
+                </div>
+            </article>
+
+            <article class="card">
+                <div class="photo">
+                    <img src="./咖啡/咖啡3.jpeg" alt="蕾丝桌布上的拉花咖啡" loading="lazy">
+                    <span class="photo-label">午后拉花</span>
+                </div>
+                <div class="card-copy">
+                    <h2>03 · 午后的奶泡</h2>
+                    <p>旋转与饱和度变化，带来灵动的镜头感。</p>
+                </div>
+            </article>
+
+            <article class="card">
+                <div class="photo">
+                    <img src="./咖啡/咖啡4.jpeg" alt="咖啡豆旁的一杯爱心拉花咖啡" loading="lazy">
+                    <span class="photo-label">醇香豆子</span>
+                </div>
+                <div class="card-copy">
+                    <h2>04 · 新鲜烘焙</h2>
+                    <p>暖调滤镜渐渐褪去，让咖啡豆更显本色。</p>
+                </div>
+            </article>
+
+            <article class="card">
+                <div class="photo">
+                    <img src="./咖啡/咖啡5.jpeg" alt="窗边光影中的一杯浓缩咖啡" loading="lazy">
+                    <span class="photo-label">窗边光影</span>
+                </div>
+                <div class="card-copy">
+                    <h2>05 · 阳光落在杯沿</h2>
+                    <p>裁切边界向外舒展，像打开一扇小窗。</p>
+                </div>
+            </article>
+
+            <article class="card">
+                <div class="photo">
+                    <img src="./咖啡/咖啡6.jpeg" alt="热气袅袅的热咖啡" loading="lazy">
+                    <span class="photo-label">热气氤氲</span>
+                </div>
+                <div class="card-copy">
+                    <h2>06 · 温热的片刻</h2>
+                    <p>明暗与色彩随指尖轻触，渐渐鲜活起来。</p>
+                </div>
+            </article>
+        </section>
+
+        <footer>TAKE A BREATH · ENJOY THE MOMENT</footer>
+    </main>
+</body>
+</html>   

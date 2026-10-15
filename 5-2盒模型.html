@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>盒模型、框模型、box model</title>
+    <style>
+        .a{
+            width: 500px;
+            height: 300px;
+            border: 2px dotted #039;
+            padding: 70px 60px 50px 40px; /* 上 右 下 左 */
+            margin: 40px auto;
+            /* 上下、左右，左右marging为auto则盒子居中*/
+        }
+        /* 盒子的高度：内容的高度+上下边框的高度+上下padding的高度+上下margin的高度 */
+        .b{
+            width: 500px;
+            height: 300px;
+            border: 2px dashed #039;
+            margin: 50px auto 40px;
+            /*上、左右、下*/
+        }
+        .c{
+            width: 500px;
+            height: 300;
+            border: 2px solid #039;
+            margin: 40px auto 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="a">1115魏鹏</div>
+    <div class="b">1115魏鹏</div>
+    <div class="c">1115魏鹏</div>
+</body>
+</html>
