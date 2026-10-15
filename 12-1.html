@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>魏鹏 · CSS 变量</title>
+    <style>
+        :root {
+            --bg: #f5f0e8;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+            --muted: #7f8c8d;
+            --accent: #3498db;
+            --accent-warm: #e67e22;
+            --accent-green: #27ae60;
+            --accent-purple: #8e44ad;
+            --radius: 16px;
+            --gap: 24px;
+            --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            --font-main: "Microsoft YaHei", "PingFang SC", sans-serif;
+            --font-mono: "Consolas", "Courier New", monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            padding: 40px 20px;
+        }
+
+        .魏鹏_container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        .魏鹏_header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .魏鹏_header h1 {
+            font-size: 2.4rem;
+            margin-bottom: 8px;
+        }
+
+        .魏鹏_header p {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .魏鹏_section {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin-bottom: var(--gap);
+            box-shadow: var(--shadow);
+        }
+
+        .魏鹏_section h2 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--bg);
+        }
+
+        .魏鹏_code {
+            font-family: var(--font-mono);
+            background: #2d2d2d;
+            color: #f8f8f2;
+            border-radius: 8px;
+            padding: 16px 20px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .魏鹏_code .comment {
+            color: #75715e;
+        }
+
+        .魏鹏_code .keyword {
+            color: #66d9ef;
+        }
+
+        .魏鹏_code .value {
+            color: #a6e22e;
+        }
+
+        .魏鹏_code .selector {
+            color: #f92672;
+        }
+
+        .魏鹏_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .魏鹏_demo-card {
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: default;
+        }
+
+        .魏鹏_demo-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .魏鹏_demo-card h3 {
+            font-size: 1rem;
+            margin-bottom: 6px;
+        }
+
+        .魏鹏_demo-card p {
+            font-size: 0.82rem;
+            opacity: 0.85;
+        }
+
+        .魏鹏_demo-blue {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: #fff;
+            box-shadow: 0 6px 16px rgba(52, 152, 219, 0.35);
+        }
+
+        .魏鹏_demo-blue:hover {
+            box-shadow: 0 10px 24px rgba(52, 152, 219, 0.45);
+        }
+
+        .魏鹏_demo-warm {
+            background: linear-gradient(135deg, #e67e22, #d35400);
+            color: #fff;
+            box-shadow: 0 6px 16px rgba(230, 126, 34, 0.35);
+        }
+
+        .魏鹏_demo-warm:hover {
+            box-shadow: 0 10px 24px rgba(230, 126, 34, 0.45);
+        }
+
+        .魏鹏_demo-green {
+            background: linear-gradient(135deg, #27ae60, #1e8449);
+            color: #fff;
+            box-shadow: 0 6px 16px rgba(39, 174, 96, 0.35);
+        }
+
+        .魏鹏_demo-green:hover {
+            box-shadow: 0 10px 24px rgba(39, 174, 96, 0.45);
+        }
+
+        .魏鹏_demo-purple {
+            background: linear-gradient(135deg, #8e44ad, #6c3483);
+            color: #fff;
+            box-shadow: 0 6px 16px rgba(142, 68, 173, 0.35);
+        }
+
+        .魏鹏_demo-purple:hover {
+            box-shadow: 0 10px 24px rgba(142, 68, 173, 0.45);
+        }
+
+        .魏鹏_btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .魏鹏_btn {
+            display: inline-block;
+            padding: 10px 22px;
+            border: none;
+            border-radius: 8px;
+            font-family: var(--font-main);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s ease, transform 0.15s ease;
+        }
+
+        .魏鹏_btn:hover {
+            opacity: 0.85;
+            transform: scale(1.03);
+        }
+
+        .魏鹏_btn-blue { background: var(--accent); color: #fff; }
+        .魏鹏_btn-warm { background: var(--accent-warm); color: #fff; }
+        .魏鹏_btn-green { background: var(--accent-green); color: #fff; }
+        .魏鹏_btn-purple { background: var(--accent-purple); color: #fff; }
+
+        .魏鹏_table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            font-size: 0.88rem;
+        }
+
+        .魏鹏_table th,
+        .魏鹏_table td {
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--bg);
+        }
+
+        .魏鹏_table th {
+            background: var(--bg);
+            font-weight: 700;
+        }
+
+        .魏鹏_table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .魏鹏_footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.8rem;
+            padding: 20px 0 40px;
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 24px 12px; }
+            .魏鹏_header h1 { font-size: 1.8rem; }
+            .魏鹏_section { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="魏鹏_container">
+        <header class="魏鹏_header">
+            <h1>CSS 变量演示</h1>
+            <p>使用 :root 自定义属性统一管理颜色、间距、圆角等设计令牌</p>
+        </header>
+
+        <section class="魏鹏_section">
+            <h2>变量声明（:root）</h2>
+            <div class="魏鹏_code">
+<span class="selector">:root</span> {
+    <span class="keyword">--bg</span>: <span class="value">#f5f0e8</span>;
+    <span class="keyword">--card-bg</span>: <span class="value">#ffffff</span>;
+    <span class="keyword">--text</span>: <span class="value">#2c3e50</span>;
+    <span class="keyword">--accent</span>: <span class="value">#3498db</span>;
+    <span class="comment">/* 更多变量... */</span>
+}
+            </div>
+            <p>在 <code>:root</code> 中声明的变量全局可用，通过 <code>var(--变量名)</code> 引用。修改变量值即可全局生效，便于主题切换与维护。</p>
+        </section>
+
+        <section class="魏鹏_section">
+            <h2>色彩变量应用</h2>
+            <div class="魏鹏_grid">
+                <div class="魏鹏_demo-card 魏鹏_demo-blue">
+                    <h3>主色</h3>
+                    <p>var(--accent)</p>
+                </div>
+                <div class="魏鹏_demo-card 魏鹏_demo-warm">
+                    <h3>暖色</h3>
+                    <p>var(--accent-warm)</p>
+                </div>
+                <div class="魏鹏_demo-card 魏鹏_demo-green">
+                    <h3>绿色</h3>
+                    <p>var(--accent-green)</p>
+                </div>
+                <div class="魏鹏_demo-card 魏鹏_demo-purple">
+                    <h3>紫色</h3>
+                    <p>var(--accent-purple)</p>
+                </div>
+            </div>
+            <div class="魏鹏_btn-group">
+                <button class="魏鹏_btn 魏鹏_btn-blue">蓝色按钮</button>
+                <button class="魏鹏_btn 魏鹏_btn-warm">橙色按钮</button>
+                <button class="魏鹏_btn 魏鹏_btn-green">绿色按钮</button>
+                <button class="魏鹏_btn 魏鹏_btn-purple">紫色按钮</button>
+            </div>
+        </section>
+
+        <section class="魏鹏_section">
+            <h2>间距与圆角变量</h2>
+            <table class="魏鹏_table">
+                <thead>
+                    <tr><th>变量名</th><th>值</th><th>用途</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>--radius</td><td>16px</td><td>卡片圆角</td></tr>
+                    <tr><td>--gap</td><td>24px</td><td>区块间距</td></tr>
+                    <tr><td>--shadow</td><td>0 8px 24px rgba(0,0,0,.08)</td><td>卡片投影</td></tr>
+                    <tr><td>--font-main</td><td>"Microsoft YaHei"</td><td>正文字体</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <footer class="魏鹏_footer">
+            魏鹏 · 高级网页设计 · CSS 变量练习
+        </footer>
+    </div>
+</body>
+</html>
