@@ -12,7 +12,18 @@ Static Chinese coursework portfolio (高级网页设计 / Advanced Web Design, s
 - Images live in `img/`; coffee-project assets in `咖啡/`.
 
 ## Naming Rules
-- All CSS class names, id names, and JS variables must start with `魏鹏_` (e.g. `魏鹏_topbar`, `魏鹏_vpW`, `魏鹏_root`).
+- All CSS class names, id names, and JS variables must start with `wp_` (e.g. `wp_topbar`, `wp_vpW`, `wp_root`).
+
+## Page Header Comment
+- Every HTML page must include a comment with: 姓名：魏鹏，日期：<date>，功能名称：<feature name>. Example:
+  ```html
+  <!-- 姓名：魏鹏 日期：2026-10-22 功能名称：CSS3 3D 动画演示 -->
+  ```
+
+## Tech Constraints
+- Native HTML, CSS and JavaScript only — no third-party libraries, no frameworks, no CDN.
+- Icons must use the iconfont assets under `font/`; do not use external icon libraries.
+- Use `fetch` to retrieve server-side data.
 
 ## Prompt Logging
 - Before executing any task, append the prompt to `魏鹏_prompt.md` (create if missing, never overwrite existing content).

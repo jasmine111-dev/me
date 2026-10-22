@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<!-- 姓名：魏鹏 日期：2026-10-22 功能名称：JavaScript 六种基本数据类型演示 -->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>14-2 JavaScript 六种基本数据类型</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: #f4f6fb;
+            color: #2b2f3a;
+            padding: 40px 20px;
+        }
+        .wp_container { max-width: 960px; margin: 0 auto; }
+        .wp_title { text-align: center; font-size: 28px; margin-bottom: 8px; }
+        .wp_subtitle { text-align: center; color: #7a8199; margin-bottom: 32px; }
+        .wp_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .wp_card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(43, 47, 58, .08);
+            border-top: 4px solid #4f7cff;
+        }
+        .wp_card:nth-child(2) { border-top-color: #27ae60; }
+        .wp_card:nth-child(3) { border-top-color: #e67e22; }
+        .wp_card:nth-child(4) { border-top-color: #9b59b6; }
+        .wp_card:nth-child(5) { border-top-color: #e74c3c; }
+        .wp_card:nth-child(6) { border-top-color: #16a085; }
+        .wp_card h3 { font-size: 20px; margin-bottom: 6px; }
+        .wp_desc { font-size: 14px; color: #7a8199; margin-bottom: 14px; }
+        .wp_row { font-size: 14px; line-height: 1.9; }
+        .wp_label { display: inline-block; width: 84px; color: #7a8199; }
+        .wp_value { font-family: Consolas, monospace; color: #d63384; }
+        .wp_typeof { font-family: Consolas, monospace; color: #1e7e34; font-weight: bold; }
+        .wp_note {
+            margin-top: 28px;
+            padding: 16px 20px;
+            background: #fff8e1;
+            border-left: 4px solid #f1c40f;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="wp_container">
+        <h1 class="wp_title">JavaScript 六种基本数据类型</h1>
+        <p class="wp_subtitle">姓名：魏鹏 · 使用 typeof 运算符检测数据类型</p>
+        <div class="wp_grid" id="wp_grid"></div>
+        <div class="wp_note">
+            注意：<code>typeof null</code> 返回 <code>"object"</code>，这是 JavaScript 沿袭至今的历史遗留问题，
+            实际上 <code>null</code> 是独立的基本数据类型，表示"空值"。
+        </div>
+    </div>
+    <script>
+        // 定义六种基本数据类型
+        var wp_num = 3.14;                 // Number 数字
+        var wp_str = "你好，魏鹏";          // String 字符串
+        var wp_bool = true;                // Boolean 布尔
+        var wp_undef;                      // Undefined 未定义
+        var wp_null = null;                // Null 空值
+        var wp_symbol = Symbol("wp");      // Symbol 符号（ES6 新增）
+
+        // 汇总各类型信息，wp_value 为展示用字符串，wp_typeofResult 为真实 typeof 结果
+        var wp_types = [
+            { wp_name: "Number",    wp_desc: "数字类型：整数、小数、NaN、Infinity", wp_code: 'var wp_num = 3.14;',            wp_value: String(wp_num),        wp_typeofResult: typeof wp_num },
+            { wp_name: "String",    wp_desc: "字符串类型：用引号包裹的文本",        wp_code: 'var wp_str = "你好，魏鹏";',     wp_value: '"' + wp_str + '"',     wp_typeofResult: typeof wp_str },
+            { wp_name: "Boolean",   wp_desc: "布尔类型：true 或 false",           wp_code: 'var wp_bool = true;',             wp_value: String(wp_bool),       wp_typeofResult: typeof wp_bool },
+            { wp_name: "Undefined", wp_desc: "未定义：只声明未赋值的变量",         wp_code: 'var wp_undef;',                  wp_value: String(wp_undef),      wp_typeofResult: typeof wp_undef },
+            { wp_name: "Null",      wp_desc: "空值：主动设置的空对象指针",         wp_code: 'var wp_null = null;',            wp_value: String(wp_null),       wp_typeofResult: typeof wp_null },
+            { wp_name: "Symbol",    wp_desc: "符号：ES6 新增，值唯一且不可变",      wp_code: 'var wp_symbol = Symbol("wp");',  wp_value: wp_symbol.toString(),  wp_typeofResult: typeof wp_symbol }
+        ];
+
+        // 用原生 DOM 将每种类型渲染成卡片
+        var wp_grid = document.getElementById("wp_grid");
+        for (var wp_i = 0; wp_i < wp_types.length; wp_i++) {
+            var wp_item = wp_types[wp_i];
+
+            var wp_card = document.createElement("div");
+            wp_card.className = "wp_card";
+
+            var wp_h3 = document.createElement("h3");
+            wp_h3.textContent = (wp_i + 1) + ". " + wp_item.wp_name;
+
+            var wp_desc = document.createElement("p");
+            wp_desc.className = "wp_desc";
+            wp_desc.textContent = wp_item.wp_desc;
+
+            var wp_rowCode = document.createElement("p");
+            wp_rowCode.className = "wp_row";
+            var wp_labelCode = document.createElement("span");
+            wp_labelCode.className = "wp_label";
+            wp_labelCode.textContent = "定义：";
+            var wp_codeVal = document.createElement("code");
+            wp_codeVal.className = "wp_value";
+            wp_codeVal.textContent = wp_item.wp_code;
+            wp_rowCode.appendChild(wp_labelCode);
+            wp_rowCode.appendChild(wp_codeVal);
+
+            var wp_rowVal = document.createElement("p");
+            wp_rowVal.className = "wp_row";
+            var wp_labelVal = document.createElement("span");
+            wp_labelVal.className = "wp_label";
+            wp_labelVal.textContent = "值：";
+            var wp_valEl = document.createElement("code");
+            wp_valEl.className = "wp_value";
+            wp_valEl.textContent = String(wp_item.wp_value);
+            wp_rowVal.appendChild(wp_labelVal);
+            wp_rowVal.appendChild(wp_valEl);
+
+            var wp_rowType = document.createElement("p");
+            wp_rowType.className = "wp_row";
+            var wp_labelType = document.createElement("span");
+            wp_labelType.className = "wp_label";
+            wp_labelType.textContent = "typeof：";
+            var wp_typeEl = document.createElement("code");
+            wp_typeEl.className = "wp_typeof";
+            wp_typeEl.textContent = wp_item.wp_typeofResult;
+            wp_rowType.appendChild(wp_labelType);
+            wp_rowType.appendChild(wp_typeEl);
+
+            wp_card.appendChild(wp_h3);
+            wp_card.appendChild(wp_desc);
+            wp_card.appendChild(wp_rowCode);
+            wp_card.appendChild(wp_rowVal);
+            wp_card.appendChild(wp_rowType);
+            wp_grid.appendChild(wp_card);
+        }
+
+        // 控制台输出 typeof 结果，验证六种类型
+        console.log("typeof wp_num    =", typeof wp_num);
+        console.log("typeof wp_str    =", typeof wp_str);
+        console.log("typeof wp_bool   =", typeof wp_bool);
+        console.log("typeof wp_undef  =", typeof wp_undef);
+        console.log("typeof wp_null   =", typeof wp_null);
+        console.log("typeof wp_symbol =", typeof wp_symbol);
+    </script>
+</body>
+</html>
