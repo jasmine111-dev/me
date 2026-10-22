@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="魏鹏的《高级网页设计》第13课练习三：iconfont 字体图标实现移动端底部导航">
+    <title>魏鹏 · iconfont 字体图标下导航</title>
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        :root {
+            --魏鹏_bg: #f4f6f8;
+            --魏鹏_nav-bg: #ffffff;
+            --魏鹏_active: #e87861;
+            --魏鹏_inactive: #9aa5b1;
+            --魏鹏_text: #2c3e50;
+            --魏鹏_muted: #7f8c8d;
+            --魏鹏_badge: #e74c3c;
+            --魏鹏_line: #edf0f2;
+            --魏鹏_shadow: 0 -4px 20px rgba(44, 62, 80, 0.08);
+            --魏鹏_safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
+            background: var(--魏鹏_bg);
+            color: var(--魏鹏_text);
+            min-height: 100vh;
+            padding-bottom: calc(72px + var(--魏鹏_safe-bottom));
+        }
+
+        .魏鹏_topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 0 14px;
+            width: min(680px, calc(100% - 32px));
+            margin: 0 auto;
+            font-size: 0.78rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .魏鹏_brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 800;
+            color: var(--魏鹏_text);
+            text-decoration: none;
+        }
+
+        .魏鹏_brand-mark {
+            display: grid;
+            width: 28px;
+            height: 28px;
+            place-items: center;
+            border-radius: 8px;
+            background: var(--魏鹏_active);
+            color: #fff;
+            font-size: 0.8rem;
+        }
+
+        .魏鹏_topbar a {
+            color: var(--魏鹏_muted);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .魏鹏_hero {
+            width: min(680px, calc(100% - 32px));
+            margin: 22px auto 0;
+            padding: 32px 28px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #294b70, #5077a9);
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(41, 75, 112, 0.25);
+        }
+
+        .魏鹏_hero h1 {
+            font-size: 1.4rem;
+            margin: 6px 0 10px;
+        }
+
+        .魏鹏_hero p {
+            opacity: 0.85;
+            font-size: 0.88rem;
+            max-width: 480px;
+            line-height: 1.7;
+        }
+
+        .魏鹏_badge-tag {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.18);
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+        }
+
+        .魏鹏_section-title {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            width: min(680px, calc(100% - 32px));
+            margin: 30px auto 14px;
+        }
+
+        .魏鹏_section-title h2 {
+            font-size: 1.05rem;
+            color: var(--魏鹏_text);
+        }
+
+        .魏鹏_section-title span {
+            font-size: 0.78rem;
+            color: var(--魏鹏_muted);
+        }
+
+        .魏鹏_card {
+            width: min(680px, calc(100% - 32px));
+            margin: 0 auto 16px;
+            padding: 20px 22px;
+            border-radius: 16px;
+            background: #fff;
+            border: 1px solid var(--魏鹏_line);
+            box-shadow: 0 2px 10px rgba(44, 62, 80, 0.04);
+        }
+
+        .魏鹏_card h3 {
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+            color: var(--魏鹏_text);
+        }
+
+        .魏鹏_card p {
+            font-size: 0.84rem;
+            color: var(--魏鹏_muted);
+            line-height: 1.7;
+        }
+
+        .魏鹏_card code {
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 0.72rem;
+            color: var(--魏鹏_active);
+            background: #fdf1ee;
+            padding: 2px 10px;
+            border-radius: 6px;
+        }
+
+        .魏鹏_nav {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 100;
+            display: flex;
+            width: 100%;
+            background: var(--魏鹏_nav-bg);
+            border-top: 1px solid var(--魏鹏_line);
+            box-shadow: var(--魏鹏_shadow);
+            padding-bottom: var(--魏鹏_safe-bottom);
+        }
+
+        .魏鹏_nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 10px 0 8px;
+            text-decoration: none;
+            color: var(--魏鹏_inactive);
+            position: relative;
+            transition: color 0.2s;
+        }
+
+        .魏鹏_nav-item:active {
+            color: var(--魏鹏_active);
+        }
+
+        .魏鹏_nav-item.魏鹏_active {
+            color: var(--魏鹏_active);
+        }
+
+        .魏鹏_nav-icon {
+            position: relative;
+            font-size: 24px;
+            line-height: 1;
+        }
+
+        .魏鹏_nav-label {
+            font-size: 0.68rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+        }
+
+        .魏鹏_num-badge {
+            position: absolute;
+            top: -6px;
+            right: -14px;
+            min-width: 16px;
+            height: 16px;
+            padding: 0 4px;
+            border-radius: 8px;
+            background: var(--魏鹏_badge);
+            color: #fff;
+            font-size: 0.62rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            box-shadow: 0 2px 6px rgba(231, 76, 60, 0.4);
+        }
+
+        .魏鹏_dot {
+            position: absolute;
+            top: -3px;
+            right: -6px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--魏鹏_badge);
+            box-shadow: 0 0 0 2px #fff;
+        }
+
+        .魏鹏_footer {
+            text-align: center;
+            padding: 20px 0 30px;
+            font-size: 0.78rem;
+            color: var(--魏鹏_muted);
+        }
+
+        @media (max-width: 380px) {
+            .魏鹏_hero { padding: 24px 20px; }
+            .魏鹏_hero h1 { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="魏鹏_topbar">
+        <a class="魏鹏_brand" href="index.html"><span class="魏鹏_brand-mark">魏</span> 魏鹏 / 高级网页设计</a>
+        <a href="index.html">← 返回目录</a>
+    </header>
+
+    <section class="魏鹏_hero">
+        <span class="魏鹏_badge-tag">LESSON 13 · 练习三</span>
+        <h1>iconfont 字体图标下导航</h1>
+        <p>使用 font 目录下的 iconfont 字体图标，实现移动端自适应宽度的固体底部导航栏，包含数字徽章与右上角红点提醒。</p>
+    </section>
+
+    <div class="魏鹏_section-title">
+        <h2>实现说明</h2>
+        <span>font icon</span>
+    </div>
+
+    <div class="魏鹏_card">
+        <h3>字体图标加载</h3>
+        <p>通过 <code>@font-face</code> 引入 iconfont 字体文件（woff2/woff/ttf），使用 CSS 伪元素 <code>:before</code> 渲染图标，字体图标矢量缩放不失真。</p>
+        <code>&lt;link rel="stylesheet" href="font/iconfont.css"&gt;</code>
+    </div>
+
+    <div class="魏鹏_card">
+        <h3>底部导航结构</h3>
+        <p>使用 <code>position: fixed</code> + <code>left: 0; right: 0; bottom: 0</code> 实现全屏宽度固定定位，<code>flex</code> 布局使 4 个导航项等宽自适应，适配任意屏幕宽度。</p>
+        <code>.魏鹏_nav { position: fixed; width: 100%; }</code>
+    </div>
+
+    <div class="魏鹏_card">
+        <h3>数字徽章与红点</h3>
+        <p>徽章使用绝对定位 <code>position: absolute</code> 配合 <code>top/right</code> 偏移，叠加在图标右上角。数字徽章为圆角矩形，红点为圆形小点，均使用醒目的红色背景。</p>
+        <code>.魏鹏_num-badge { position: absolute; top: -6px; right: -14px; }</code>
+    </div>
+
+    <div class="魏鹏_card">
+        <h3>安全区域适配</h3>
+        <p>通过 <code>env(safe-area-inset-bottom)</code> 适配 iPhone 全面屏底部小黑条，避免导航内容被遮挡，保证在各移动端设备上完美显示。</p>
+        <code>padding-bottom: env(safe-area-inset-bottom, 0px);</code>
+    </div>
+
+    <nav class="魏鹏_nav">
+        <a href="13-3.html" class="魏鹏_nav-item 魏鹏_active">
+            <span class="魏鹏_nav-icon iconfont icon-pingguo">
+                <span class="魏鹏_num-badge">5</span>
+            </span>
+            <span class="魏鹏_nav-label">首页</span>
+        </a>
+        <a href="13-3.html" class="魏鹏_nav-item">
+            <span class="魏鹏_nav-icon iconfont icon-QQ">
+                <span class="魏鹏_dot"></span>
+            </span>
+            <span class="魏鹏_nav-label">消息</span>
+        </a>
+        <a href="13-3.html" class="魏鹏_nav-item">
+            <span class="魏鹏_nav-icon iconfont icon-kafei"></span>
+            <span class="魏鹏_nav-label">发现</span>
+        </a>
+        <a href="13-3.html" class="魏鹏_nav-item">
+            <span class="魏鹏_nav-icon iconfont icon-wode"></span>
+            <span class="魏鹏_nav-label">我的</span>
+        </a>
+    </nav>
+
+    <footer class="魏鹏_footer">iconfont 字体图标 · 移动端底部导航 · 魏鹏的《高级网页设计》课堂实践</footer>
+</body>
+</html>

@@ -65,6 +65,13 @@
             box-shadow: 0 8px 24px rgba(74, 49, 32, 0.08);
         }
 
+        .card:nth-child(n + 4):nth-child(-n + 6) {
+            display: grid;
+            grid-column: 1 / -1;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            align-items: stretch;
+        }
+
         .photo {
             position: relative;
             overflow: hidden;
@@ -155,6 +162,16 @@
 
         .card-copy {
             padding: 16px 18px 18px;
+        }
+
+        .card:nth-child(n + 4):nth-child(-n + 6) .photo {
+            min-height: 220px;
+            aspect-ratio: auto;
+        }
+
+        .card:nth-child(n + 4):nth-child(-n + 6) .card-copy {
+            align-self: center;
+            padding: 28px;
         }
 
         .card-copy h2 {

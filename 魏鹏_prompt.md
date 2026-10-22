@@ -45,3 +45,15 @@ Prompt: 创建ssh公钥，上传gitee
 ## 2026-44-15-04-44
 - Model: opencode/longcat-2.5-preview-free
 - Prompt: 创建网页12-1.html，展示css变量，然后提交项目
+
+## 2026-10-19-10-30 · Model: opencode/longcat-2.5-preview-free
+
+根据font目录下的iconfont的图标，分别完成13-3.html和13-4.html，使用字体图标和svg的方法完成移动端的自适应宽度的固体的下导航，下导航有4项内容，导航项包括数字徽章和右上角的红点，全屏宽度。
+
+## 2026-10-22-15-59
+- Model: Kimi-K3
+- Prompt: `c:\Users\PC-WP\Desktop\高级网页设计/.opencode\skills\git-commit-push-gitee\SKILL.md`根据给定文件创建trae和skill
+
+## 2026-10-22-16-02
+- Model: Kimi-K3
+- Prompt: 提交项目

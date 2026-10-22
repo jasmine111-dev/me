@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="魏鹏的《高级网页设计》第13课练习一：Font Awesome 字体图标">
+    <title>魏鹏 · Font Awesome 字体图标</title>
+    <link rel="stylesheet" href="cdn/fontawesome/css/all.min.css">
+    <style>
+        :root {
+            --魏鹏_bg: #f5f1ea;
+            --魏鹏_card: #ffffff;
+            --魏鹏_ink: #2c3e50;
+            --魏鹏_muted: #7f8c8d;
+            --魏鹏_coral: #e87861;
+            --魏鹏_blue: #5077a9;
+            --魏鹏_blue_deep: #294b70;
+            --魏鹏_yellow: #f5c96b;
+            --魏鹏_green: #27ae60;
+            --魏鹏_purple: #8e44ad;
+            --魏鹏_line: #e8e1d5;
+            --魏鹏_shadow: 0 10px 28px rgba(44, 62, 80, 0.1);
+            --魏鹏_radius: 18px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            color: var(--魏鹏_ink);
+            background: var(--魏鹏_bg);
+            font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        .魏鹏_topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 26px 0 16px;
+            width: min(1100px, calc(100% - 40px));
+            margin: 0 auto;
+            font-size: 0.8rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        .魏鹏_brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            color: var(--魏鹏_blue_deep);
+            text-decoration: none;
+        }
+
+        .魏鹏_brand-mark {
+            display: grid;
+            width: 32px;
+            height: 32px;
+            place-items: center;
+            border-radius: 10px;
+            background: var(--魏鹏_coral);
+            color: #fff;
+            font-size: 0.85rem;
+        }
+
+        .魏鹏_topbar a {
+            color: var(--魏鹏_blue);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .魏鹏_topbar a:hover {
+            color: var(--魏鹏_coral);
+        }
+
+        .魏鹏_hero {
+            width: min(1100px, calc(100% - 40px));
+            margin: 30px auto 0;
+            padding: 46px 50px;
+            border-radius: 22px;
+            background: linear-gradient(135deg, var(--魏鹏_blue_deep), var(--魏鹏_blue));
+            color: #fff;
+            box-shadow: var(--魏鹏_shadow);
+        }
+
+        .魏鹏_hero p {
+            opacity: 0.85;
+            max-width: 640px;
+        }
+
+        .魏鹏_hero h1 {
+            margin: 8px 0 14px;
+            font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+        }
+
+        .魏鹏_badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.18);
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            margin-bottom: 14px;
+        }
+
+        .魏鹏_container {
+            width: min(1100px, calc(100% - 40px));
+            margin: 34px auto 70px;
+        }
+
+        .魏鹏_section-title {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin: 34px 0 18px;
+        }
+
+        .魏鹏_section-title h2 {
+            font-size: 1.15rem;
+            color: var(--魏鹏_blue_deep);
+        }
+
+        .魏鹏_section-title span {
+            font-size: 0.82rem;
+            color: var(--魏鹏_muted);
+        }
+
+        .魏鹏_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 16px;
+        }
+
+        .魏鹏_card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 26px 14px 20px;
+            border-radius: var(--魏鹏_radius);
+            background: var(--魏鹏_card);
+            border: 1px solid var(--魏鹏_line);
+            box-shadow: 0 4px 14px rgba(44, 62, 80, 0.06);
+            transition: transform 0.25s, box-shadow 0.25s;
+        }
+
+        .魏鹏_card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 14px 32px rgba(44, 62, 80, 0.12);
+        }
+
+        .魏鹏_icon-box {
+            display: grid;
+            width: 58px;
+            height: 58px;
+            place-items: center;
+            border-radius: 16px;
+            font-size: 1.6rem;
+        }
+
+        .魏鹏_card:nth-child(6n+1) .魏鹏_icon-box { background: #fdeceb; color: var(--魏鹏_coral); }
+        .魏鹏_card:nth-child(6n+2) .魏鹏_icon-box { background: #eaf1f8; color: var(--魏鹏_blue); }
+        .魏鹏_card:nth-child(6n+3) .魏鹏_icon-box { background: #fdf6e3; color: #d4a017; }
+        .魏鹏_card:nth-child(6n+4) .魏鹏_icon-box { background: #e8f8f0; color: var(--魏鹏_green); }
+        .魏鹏_card:nth-child(6n+5) .魏鹏_icon-box { background: #f3eafb; color: var(--魏鹏_purple); }
+        .魏鹏_card:nth-child(6n+6) .魏鹏_icon-box { background: #fff4e0; color: #e67e22; }
+
+        .魏鹏_card strong {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .魏鹏_card code {
+            font-size: 0.72rem;
+            color: var(--魏鹏_muted);
+            background: #f7f4ee;
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        .魏鹏-footer {
+            text-align: center;
+            padding: 22px 0 34px;
+            font-size: 0.8rem;
+            color: var(--魏鹏_muted);
+        }
+
+        @media (max-width: 640px) {
+            .魏鹏_hero { padding: 34px 26px; }
+            .魏鹏_grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+    <header class="魏鹏_topbar">
+        <a class="魏鹏_brand" href="index.html"><span class="魏鹏_brand-mark">魏</span> 魏鹏 / 高级网页设计</a>
+        <a href="index.html">← 返回目录</a>
+    </header>
+
+    <section class="魏鹏_hero">
+        <span class="魏鹏_badge">LESSON 13 · 练习一</span>
+        <h1>Font Awesome 字体图标</h1>
+        <p>通过 Web 字体渲染图标 —— 一个 CSS 类名即可调用，矢量缩放不失真，颜色、大小随心控制。</p>
+    </section>
+
+    <main class="魏鹏_container">
+        <div class="魏鹏_section-title">
+            <h2>Solid 实心图标</h2>
+            <span>fa-solid</span>
+        </div>
+        <div class="魏鹏_grid">
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-solid fa-house"></i></div><strong>首页</strong><code>fa-house</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-solid fa-magnifying-glass"></i></div><strong>搜索</strong><code>fa-magnifying-glass</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-solid fa-heart"></i></div><strong>收藏</strong><code>fa-heart</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-solid fa-star"></i></div><strong>星星</strong><code>fa-star</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-solid fa-bell"></i></div><strong>通知</strong><code>fa-bell</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-solid fa-envelope"></i></div><strong>邮件</strong><code>fa-envelope</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-solid fa-camera"></i></div><strong>相机</strong><code>fa-camera</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-solid fa-music"></i></div><strong>音乐</strong><code>fa-music</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-solid fa-cloud"></i></div><strong>云</strong><code>fa-cloud</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-solid fa-gear"></i></div><strong>设置</strong><code>fa-gear</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-solid fa-cart-shopping"></i></div><strong>购物车</strong><code>fa-cart-shopping</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-solid fa-book-open"></i></div><strong>阅读</strong><code>fa-book-open</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-solid fa-gamepad"></i></div><strong>游戏</strong><code>fa-gamepad</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-solid fa-plane"></i></div><strong>旅行</strong><code>fa-plane</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-solid fa-fire"></i></div><strong>热门</strong><code>fa-fire</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-solid fa-thumbs-up"></i></div><strong>点赞</strong><code>fa-thumbs-up</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-solid fa-wifi"></i></div><strong>无线</strong><code>fa-wifi</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-solid fa-location-dot"></i></div><strong>位置</strong><code>fa-location-dot</code></div>
+        </div>
+
+        <div class="魏鹏_section-title">
+            <h2>Regular 线性图标</h2>
+            <span>fa-regular</span>
+        </div>
+        <div class="魏鹏_grid">
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-regular fa-heart"></i></div><strong>收藏</strong><code>fa-heart</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-regular fa-star"></i></div><strong>星星</strong><code>fa-star</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-regular fa-bell"></i></div><strong>通知</strong><code>fa-bell</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-regular fa-envelope"></i></div><strong>邮件</strong><code>fa-envelope</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-regular fa-user"></i></div><strong>用户</strong><code>fa-user</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-regular fa-bookmark"></i></div><strong>书签</strong><code>fa-bookmark</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-regular fa-comment"></i></div><strong>评论</strong><code>fa-comment</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-regular fa-face-smile"></i></div><strong>表情</strong><code>fa-face-smile</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-regular fa-calendar"></i></div><strong>日历</strong><code>fa-calendar</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-regular fa-clock"></i></div><strong>时钟</strong><code>fa-clock</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-regular fa-moon"></i></div><strong>夜间</strong><code>fa-moon</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-regular fa-paper-plane"></i></div><strong>发送</strong><code>fa-paper-plane</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-regular fa-file-lines"></i></div><strong>文件</strong><code>fa-file-lines</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-regular fa-compass"></i></div><strong>指南针</strong><code>fa-compass</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-regular fa-images"></i></div><strong>相册</strong><code>fa-images</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-regular fa-lightbulb"></i></div><strong>灵感</strong><code>fa-lightbulb</code></div>
+        </div>
+
+        <div class="魏鹏_section-title">
+            <h2>Brands 品牌图标</h2>
+            <span>fa-brands</span>
+        </div>
+        <div class="魏鹏_grid">
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-brands fa-github"></i></div><strong>GitHub</strong><code>fa-github</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-brands fa-weixin"></i></div><strong>微信</strong><code>fa-weixin</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-brands fa-weibo"></i></div><strong>微博</strong><code>fa-weibo</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-brands fa-bilibili"></i></div><strong>哔哩哔哩</strong><code>fa-bilibili</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-brands fa-qq"></i></div><strong>QQ</strong><code>fa-qq</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-brands fa-wechat"></i></div><strong>微信</strong><code>fa-wechat</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-brands fa-alipay"></i></div><strong>支付宝</strong><code>fa-alipay</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-brands fa-apple"></i></div><strong>Apple</strong><code>fa-apple</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-brands fa-android"></i></div><strong>Android</strong><code>fa-android</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-brands fa-chrome"></i></div><strong>Chrome</strong><code>fa-chrome</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-brands fa-firefox"></i></div><strong>Firefox</strong><code>fa-firefox</code></div>
+            <div class="魏鹏_card"><div class="魏鹏_icon-box"><i class="fa-brands fa-windows"></i></div><strong>Windows</strong><code>fa-windows</code></div>
+        </div>
+    </main>
+
+    <footer class="魏鹏_footer">Font Awesome 6 · 字体图标 · 魏鹏的《高级网页设计》课堂实践</footer>
+</body>
+</html>
