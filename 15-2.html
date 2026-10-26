@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<!-- 姓名：魏鹏 日期：2026-10-26 功能名称：JavaScript 条件与循环程序结构演示 -->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>15-2 JS 条件与循环 · 魏鹏</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #eef2ff 0%, #fff7ed 100%);
+            min-height: 100vh;
+            padding: 32px 16px;
+        }
+        .wp_container { max-width: 960px; margin: 0 auto; }
+        .wp_header { text-align: center; margin-bottom: 28px; }
+        .wp_title { font-size: 32px; color: #1e1b4b; margin-bottom: 6px; }
+        .wp_title .wp_name { color: #ea580c; }
+        .wp_subtitle { color: #64748b; font-size: 15px; }
+        .wp_section {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(30, 27, 75, .08);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .wp_section-title {
+            font-size: 22px;
+            margin-bottom: 16px;
+            padding-left: 12px;
+            border-left: 4px solid #ea580c;
+            color: #1e1b4b;
+        }
+        .wp_section-title.wp_loop { border-left-color: #4f7cff; }
+        .wp_row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+            align-items: center;
+        }
+        .wp_row label { font-size: 14px; color: #475569; }
+        .wp_input {
+            padding: 8px 12px;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 120px;
+            font-family: Consolas, monospace;
+        }
+        .wp_input:focus { outline: none; border-color: #ea580c; }
+        .wp_btn {
+            padding: 8px 18px;
+            background: #ea580c;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .wp_btn:hover { background: #c2410c; }
+        .wp_btn.wp_blue { background: #4f7cff; }
+        .wp_btn.wp_blue:hover { background: #3b63db; }
+        .wp_output {
+            background: #0f172a;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 16px 18px;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.8;
+            min-height: 80px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .wp_output .wp_ok { color: #22c55e; }
+        .wp_output .wp_warn { color: #facc15; }
+        .wp_output .wp_bad { color: #ef4444; }
+        .wp_output .wp_info { color: #38bdf8; }
+        .wp_tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-right: 6px;
+        }
+        .wp_tag-if { background: #fed7aa; color: #9a3412; }
+        .wp_tag-switch { background: #bfdbfe; color: #1e40af; }
+        .wp_tag-for { background: #d9f99d; color: #3f6212; }
+        .wp_tag-while { background: #fbcfe8; color: #9d174d; }
+        .wp_tag-do { background: #c4b5fd; color: #5b21b6; }
+        .wp_tag-forin { background: #a7f3d0; color: #065f46; }
+    </style>
+</head>
+<body>
+    <div class="wp_container">
+        <div class="wp_header">
+            <h1 class="wp_title">JavaScript 程序结构 · <span class="wp_name">魏鹏</span></h1>
+            <p class="wp_subtitle">条件语句（if / switch）与循环语句（for / while / do-while / for...in）演示</p>
+        </div>
+
+        <!-- ===== 条件 ===== -->
+        <section class="wp_section">
+            <h2 class="wp_section-title"><span class="wp_tag wp_tag-if">if</span><span class="wp_tag wp_tag-switch">switch</span>条件语句</h2>
+
+            <div class="wp_row">
+                <label>① 请输入一个 0~100 的分数：</label>
+                <input type="number" class="wp_input" id="wp_score" min="0" max="100" value="85">
+                <button class="wp_btn" id="wp_btnScore">判定等级（if / switch）</button>
+            </div>
+            <div class="wp_output" id="wp_outScore"></div>
+        </section>
+
+        <!-- ===== 循环 ===== -->
+        <section class="wp_section">
+            <h2 class="wp_section-title wp_loop"><span class="wp_tag wp_tag-for">for</span><span class="wp_tag wp_tag-while">while</span><span class="wp_tag wp_tag-do">do-while</span><span class="wp_tag wp_tag-forin">for...in</span>循环语句</h2>
+
+            <div class="wp_row">
+                <label>② 求 1 到</label>
+                <input type="number" class="wp_input" id="wp_n" min="1" max="200" value="10">
+                <label>的累加和（while）</label>
+                <button class="wp_btn wp_blue" id="wp_btnSum">计算</button>
+            </div>
+
+            <div class="wp_row" style="margin-top:12px;">
+                <label>③ 九九乘法表（双层 for 循环）</label>
+                <button class="wp_btn wp_blue" id="wp_btnTable">生成</button>
+                <button class="wp_btn" id="wp_btnTableClear">清空</button>
+            </div>
+            <div class="wp_output" id="wp_outLoop"></div>
+
+            <div class="wp_row" style="margin-top:12px;">
+                <label>④ 对象属性遍历（for...in）— 点击"姓名 / 班级 / 分数"输出属性</label>
+                <button class="wp_btn wp_blue" id="wp_btnObj">遍历学生对象</button>
+            </div>
+            <div class="wp_output" id="wp_outObj"></div>
+        </section>
+    </div>
+
+    <script>
+        // ========== ① 条件：if + switch 判定等级 ==========
+        var wp_scoreInput = document.getElementById("wp_score");
+        var wp_btnScore = document.getElementById("wp_btnScore");
+        var wp_outScore = document.getElementById("wp_outScore");
+
+        wp_btnScore.onclick = function () {
+            var wp_s = parseInt(wp_scoreInput.value);
+            if (isNaN(wp_s) || wp_s < 0 || wp_s > 100) {
+                wp_outScore.innerHTML = "<span class='wp_bad'>请输入 0~100 之间的有效整数</span>";
+                return;
+            }
+            var wp_level;
+            if (wp_s >= 90)      { wp_level = "优秀"; }
+            else if (wp_s >= 80) { wp_level = "良好"; }
+            else if (wp_s >= 70) { wp_level = "中等"; }
+            else if (wp_s >= 60) { wp_level = "及格"; }
+            else                 { wp_level = "不及格"; }
+
+            // switch 版本（用十位做 key）
+            var wp_ten = Math.floor(wp_s / 10);
+            var wp_switchMsg;
+            switch (wp_ten) {
+                case 10:
+                case 9:  wp_switchMsg = "switch → A"; break;
+                case 8:  wp_switchMsg = "switch → B"; break;
+                case 7:  wp_switchMsg = "switch → C"; break;
+                case 6:  wp_switchMsg = "switch → D"; break;
+                default: wp_switchMsg = "switch → F";
+            }
+
+            wp_outScore.innerHTML =
+                "<span class='wp_info'>分数</span>: " + wp_s + "\n" +
+                "<span class='wp_ok'>if</span>   判定: " + wp_level + "\n" +
+                "<span class='wp_ok'>" + wp_switchMsg + "</span>";
+        };
+
+        // ========== ② while：1..N 累加 ==========
+        var wp_nInput = document.getElementById("wp_n");
+        var wp_btnSum = document.getElementById("wp_btnSum");
+        var wp_outLoop = document.getElementById("wp_outLoop");
+
+        wp_btnSum.onclick = function () {
+            var wp_n = parseInt(wp_nInput.value);
+            if (isNaN(wp_n) || wp_n <= 0) {
+                wp_outLoop.innerHTML = "<span class='wp_bad'>请输入大于 0 的整数</span>";
+                return;
+            }
+            var wp_i = 1, wp_sum = 0, wp_steps = "";
+            while (wp_i <= wp_n) {
+                wp_sum += wp_i;
+                wp_steps += wp_i + (wp_i < wp_n ? " + " : "");
+                wp_i++;
+            }
+            wp_outLoop.innerHTML =
+                "<span class='wp_info'>while 循环</span>\n" +
+                "1 + 2 + ... + " + wp_n + "\n" +
+                "<span class='wp_ok'>= " + wp_steps + " = " + wp_sum + "</span>\n\n" +
+                "<span class='wp_warn'>do-while 校验</span>（本题 N≥1 时结果相同）: 同样为 " + wp_sum;
+        };
+
+        // ========== ③ 双层 for：九九乘法表 ==========
+        var wp_btnTable = document.getElementById("wp_btnTable");
+        wp_btnTable.onclick = function () {
+            var wp_table = "";
+            for (var wp_row = 1; wp_row <= 9; wp_row++) {
+                for (var wp_col = 1; wp_col <= wp_row; wp_col++) {
+                    wp_table += wp_col + "×" + wp_row + "=" + (wp_row * wp_col);
+                    wp_table += (wp_col === wp_row) ? "\n" : "  ";
+                }
+            }
+            wp_outLoop.innerHTML += "\n<span class='wp_info'>for 双层循环 · 九九乘法表</span>\n" +
+                "<span class='wp_ok'>" + wp_table + "</span>";
+        };
+
+        document.getElementById("wp_btnTableClear").onclick = function () {
+            wp_outLoop.innerHTML = "";
+        };
+
+        // ========== ④ for...in：遍历对象属性 ==========
+        var wp_btnObj = document.getElementById("wp_btnObj");
+        var wp_outObj = document.getElementById("wp_outObj");
+
+        wp_btnObj.onclick = function () {
+            var wp_student = {
+                wp_name: "魏鹏",
+                wp_class: "高级网页设计-2026秋",
+                wp_score: 88,
+                wp_school: "某大学"
+            };
+            var wp_msg = "<span class='wp_info'>for...in 遍历学生对象</span>\n";
+            var wp_keys = [];
+            for (var wp_k in wp_student) {
+                wp_msg += wp_k + " : <span class='wp_ok'>" + wp_student[wp_k] + "</span>\n";
+                wp_keys.push(wp_k);
+            }
+            wp_msg += "\n共遍历到 " + wp_keys.length + " 个属性: " + wp_keys.join(", ");
+            wp_outObj.innerHTML = wp_msg;
+        };
+    </script>
+</body>
+</html>
