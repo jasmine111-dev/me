@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<!-- 姓名：魏鹏 日期：2026-10-26 功能名称：数7（逢7过）规则演示 -->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>15-1 数7规则演示 · 魏鹏</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #e0e7ff 0%, #fdf2f8 100%);
+            min-height: 100vh;
+            padding: 32px 16px;
+        }
+        .wp_container { max-width: 900px; margin: 0 auto; }
+        .wp_header { text-align: center; margin-bottom: 24px; }
+        .wp_title {
+            font-size: 32px;
+            color: #1e1b4b;
+            margin-bottom: 8px;
+        }
+        .wp_title .wp_name {
+            color: #c026d3;
+            font-weight: bold;
+        }
+        .wp_rule {
+            background: #ffffff;
+            border-left: 4px solid #c026d3;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #4b5563;
+            margin-bottom: 24px;
+            line-height: 1.8;
+        }
+        .wp_rule code {
+            background: #f1f5f9;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-family: Consolas, monospace;
+            color: #1e40af;
+        }
+        .wp_grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 8px;
+            padding: 16px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(30, 27, 75, .08);
+        }
+        .wp_box {
+            aspect-ratio: 1 / 1;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 600;
+            font-family: Consolas, "Microsoft YaHei", monospace;
+            transition: transform .15s ease;
+            user-select: none;
+        }
+        .wp_box:hover { transform: scale(1.05); }
+        /* 不满足数7规则：显示数字，实心蓝底 */
+        .wp_box.wp_show-num {
+            background: #dbeafe;
+            color: #1e3a8a;
+            border: 2px solid #60a5fa;
+        }
+        /* 满足数7规则：空盒子，粉色虚线边框 */
+        .wp_box.wp_pass {
+            background: #fdf2f8;
+            color: transparent;
+            border: 2px dashed #c026d3;
+        }
+        .wp_legend {
+            margin-top: 20px;
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            font-size: 14px;
+            color: #4b5563;
+        }
+        .wp_legend-item { display: flex; align-items: center; gap: 8px; }
+        .wp_legend-swatch {
+            width: 22px; height: 22px; border-radius: 4px;
+        }
+        .wp_stats {
+            margin-top: 16px;
+            text-align: center;
+            font-size: 14px;
+            color: #4b5563;
+        }
+        .wp_stats code {
+            background: #f1f5f9;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-family: Consolas, monospace;
+            color: #c026d3;
+        }
+    </style>
+</head>
+<body>
+    <div class="wp_container">
+        <div class="wp_header">
+            <h1 class="wp_title">数7规则演示 · <span class="wp_name">魏鹏</span></h1>
+        </div>
+
+        <div class="wp_rule">
+            <strong>规则（逢 7 过）：</strong>
+            数字满足以下<strong>任一</strong>条件则输出<strong>空盒子</strong>，否则显示数字：<br>
+            ① 是 7 的倍数（<code>n % 7 === 0</code>）；
+            ② 个位是 7（<code>n % 10 === 7</code>）；
+            ③ 数字中包含 7（<code>String(n).includes('7')</code>）。
+        </div>
+
+        <div class="wp_grid" id="wp_grid"></div>
+
+        <div class="wp_legend">
+            <div class="wp_legend-item">
+                <span class="wp_legend-swatch" style="background:#dbeafe;border:2px solid #60a5fa;"></span>
+                显示数字（不满足规则）
+            </div>
+            <div class="wp_legend-item">
+                <span class="wp_legend-swatch" style="background:#fdf2f8;border:2px dashed #c026d3;"></span>
+                空盒子（满足规则）
+            </div>
+        </div>
+
+        <div class="wp_stats" id="wp_stats"></div>
+    </div>
+
+    <script>
+        // 数7匹配判定（单一事实来源）
+        function wp_isQi(n) {
+            return n % 7 === 0 || n % 10 === 7 || String(n).indexOf("7") !== -1;
+        }
+
+        var wp_total = 100;
+        var wp_passCount = 0;
+        var wp_grid = document.getElementById("wp_grid");
+        var wp_stats = document.getElementById("wp_stats");
+
+        for (var wp_i = 1; wp_i <= wp_total; wp_i++) {
+            var wp_box = document.createElement("div");
+            wp_box.className = "wp_box";
+
+            if (wp_isQi(wp_i)) {
+                wp_box.classList.add("wp_pass");   // 空盒子
+                wp_passCount++;
+            } else {
+                wp_box.classList.add("wp_show-num");
+                wp_box.textContent = wp_i;          // 显示数字
+            }
+            wp_grid.appendChild(wp_box);
+        }
+
+        wp_stats.innerHTML = "共 1 ~ " + wp_total + "，其中满足规则（空盒子）<code>" + wp_passCount + "</code> 个，显示数字 <code>" + (wp_total - wp_passCount) + "</code> 个。";
+    </script>
+</body>
+</html>
