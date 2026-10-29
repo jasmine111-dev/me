@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<!-- 姓名：魏鹏 日期：2026-10-29 功能名称：NBA 比赛比分卡片（图片还原） -->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>16-3 NBA 比赛比分 · 魏鹏</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
+            background: #e8eaed;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        /* ===== 主卡片 ===== */
+        .wp_card {
+            width: 100%;
+            max-width: 560px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+        }
+
+        /* ===== 顶部标签 ===== */
+        .wp_top-label {
+            padding: 18px 24px 4px;
+            font-size: 13px;
+            color: #8b8f98;
+            letter-spacing: 1px;
+        }
+
+        /* ===== 对阵区 ===== */
+        .wp_match {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 24px 20px;
+            gap: 12px;
+        }
+        .wp_team {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .wp_team.wp_right { align-items: center; }
+
+        /* 队标（CSS 绘制） */
+        .wp_logo {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        }
+        /* 勇士：蓝金渐变圆形 + 简化桥 */
+        .wp_logo.wp_warriors {
+            background: linear-gradient(135deg, #1d428a 0%, #006bb6 50%, #fdb927 100%);
+            border: 2px solid #fdb927;
+        }
+        /* 森林狼：深海军蓝圆形 + 狼头轮廓 */
+        .wp_logo.wp_timberwolves {
+            background: #0c2340;
+            border: 2px solid #c4ced4;
+        }
+        /* 队标内 SVG（inline，确保不依赖外部资源） */
+        .wp_logo svg { width: 70%; height: 70%; }
+
+        .wp_team-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .wp_team-name .wp_icon { font-size: 16px; }
+        .wp_team-record {
+            font-size: 12px;
+            color: #8b8f98;
+        }
+
+        /* 比分中心 */
+        .wp_score {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            min-width: 140px;
+        }
+        .wp_score-label {
+            font-size: 13px;
+            color: #8b8f98;
+        }
+        .wp_score-row {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+        }
+        .wp_score-num {
+            font-size: 52px;
+            font-weight: 800;
+            font-family: "Arial Black", Impact, sans-serif;
+            color: #1a1a1a;
+            line-height: 1;
+            letter-spacing: -2px;
+        }
+        .wp_score-dash {
+            font-size: 32px;
+            font-weight: 300;
+            color: #b0b3bb;
+        }
+
+        /* 分隔线 */
+        .wp_divider {
+            height: 1px;
+            background: #eef0f4;
+            margin: 0 24px;
+        }
+
+        /* ===== 技术统计表格 ===== */
+        .wp_stats {
+            padding: 16px 24px 4px;
+        }
+        .wp_stats table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .wp_stats thead th {
+            color: #8b8f98;
+            font-weight: 500;
+            font-size: 12px;
+            padding: 6px 0;
+            text-align: center;
+            border-bottom: 1px solid #eef0f4;
+        }
+        .wp_stats thead th.wp_col-team { text-align: left; width: 40%; }
+        .wp_stats tbody td {
+            padding: 10px 0;
+            text-align: center;
+            color: #333;
+            border-bottom: 1px solid #f3f4f6;
+            font-family: Consolas, "Microsoft YaHei", sans-serif;
+        }
+        .wp_stats tbody td.wp_col-team {
+            text-align: left;
+            font-family: "Microsoft YaHei", sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #1a1a1a;
+            font-weight: 500;
+        }
+        .wp_stats tbody td.wp_col-total {
+            font-weight: 800;
+            font-size: 16px;
+            color: #1a1a1a;
+        }
+        .wp_stats tbody tr.wp_highlight td.wp_col-total {
+            color: #c0392b;
+        }
+        /* 表格中的迷你队标 */
+        .wp_stats-logo {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .wp_stats-logo svg { width: 70%; height: 70%; }
+
+        /* ===== 场馆 ===== */
+        .wp_venue {
+            padding: 14px 24px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #8b8f98;
+        }
+        .wp_venue-icon {
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+<div class="wp_card">
+
+    <!-- 顶部标签 -->
+    <div class="wp_top-label">美国职业篮球联赛</div>
+
+    <!-- 对阵区 -->
+    <div class="wp_match">
+
+        <!-- 左：勇士 -->
+        <div class="wp_team wp_left">
+            <div class="wp_logo wp_warriors">
+                <!-- 简化版金州勇士桥图案 -->
+                <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- 桥身 -->
+                    <path d="M8 44 Q32 16 56 44" stroke="#fdb927" stroke-width="4" fill="none" stroke-linecap="round"/>
+                    <!-- 桥面 -->
+                    <line x1="4" y1="48" x2="60" y2="48" stroke="#fdb927" stroke-width="3" stroke-linecap="round"/>
+                    <!-- 桥塔 -->
+                    <rect x="30" y="28" width="4" height="16" fill="#fdb927"/>
+                </svg>
+            </div>
+            <div class="wp_team-name"><span class="wp_icon">⚔</span>勇士</div>
+            <div class="wp_team-record">客, 2-3</div>
+        </div>
+
+        <!-- 中：比分 -->
+        <div class="wp_score">
+            <div class="wp_score-label">今天</div>
+            <div class="wp_score-row">
+                <span class="wp_score-num">119</span>
+                <span class="wp_score-dash">-</span>
+                <span class="wp_score-num">114</span>
+            </div>
+        </div>
+
+        <!-- 右：森林狼 -->
+        <div class="wp_team wp_right">
+            <div class="wp_logo wp_timberwolves">
+                <!-- 简化版狼头轮廓 -->
+                <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- 耳朵 -->
+                    <path d="M14 22 L22 34 L10 34 Z" fill="#c4ced4"/>
+                    <path d="M50 22 L42 34 L54 34 Z" fill="#c4ced4"/>
+                    <!-- 脸 -->
+                    <ellipse cx="32" cy="38" rx="18" ry="18" fill="#c4ced4"/>
+                    <!-- 眼睛 -->
+                    <circle cx="25" cy="36" r="2.5" fill="#0c2340"/>
+                    <circle cx="39" cy="36" r="2.5" fill="#0c2340"/>
+                    <!-- 鼻子 -->
+                    <path d="M32 42 L29 46 L35 46 Z" fill="#0c2340"/>
+                    <!-- 嘴 -->
+                    <path d="M28 48 Q32 52 36 48" stroke="#0c2340" stroke-width="2" fill="none" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="wp_team-name">森林狼</div>
+            <div class="wp_team-record">主场, 3-2</div>
+        </div>
+    </div>
+
+    <div class="wp_divider"></div>
+
+    <!-- 四节得分表 -->
+    <div class="wp_stats">
+        <table>
+            <thead>
+                <tr>
+                    <th class="wp_col-team">球队</th>
+                    <th>1</th><th>2</th><th>3</th><th>4</th>
+                    <th>总</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="wp_highlight">
+                    <td class="wp_col-team">
+                        <span class="wp_stats-logo wp_warriors-logo">
+                            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="0" y="0" width="64" height="64" rx="32" fill="#1d428a"/>
+                                <path d="M8 44 Q32 16 56 44" stroke="#fdb927" stroke-width="5" fill="none"/>
+                                <line x1="4" y1="48" x2="60" y2="48" stroke="#fdb927" stroke-width="4"/>
+                                <rect x="30" y="28" width="4" height="16" fill="#fdb927"/>
+                            </svg>
+                        </span>
+                        金州勇士
+                    </td>
+                    <td>30</td><td>34</td><td>29</td><td>26</td>
+                    <td class="wp_col-total">119</td>
+                </tr>
+                <tr>
+                    <td class="wp_col-team">
+                        <span class="wp_stats-logo wp_wolves-logo">
+                            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="0" y="0" width="64" height="64" rx="32" fill="#0c2340"/>
+                                <path d="M14 22 L22 34 L10 34 Z" fill="#c4ced4"/>
+                                <path d="M50 22 L42 34 L54 34 Z" fill="#c4ced4"/>
+                                <ellipse cx="32" cy="38" rx="18" ry="18" fill="#c4ced4"/>
+                                <circle cx="25" cy="36" r="2.5" fill="#0c2340"/>
+                                <circle cx="39" cy="36" r="2.5" fill="#0c2340"/>
+                                <path d="M32 42 L29 46 L35 46 Z" fill="#0c2340"/>
+                            </svg>
+                        </span>
+                        明尼苏达森林狼
+                    </td>
+                    <td>23</td><td>25</td><td>33</td><td>33</td>
+                    <td class="wp_col-total">114</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 场馆 -->
+    <div class="wp_venue">
+        <span class="wp_venue-icon">🏟️</span>
+        標靶中心, 明尼阿波利斯
+    </div>
+</div>
+</body>
+</html>

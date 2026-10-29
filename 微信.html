@@ -1,0 +1,381 @@
+<!-- 姓名：魏鹏 日期：2026-10-26 功能名称：微信界面与底部导航 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ededed">
+    <title>微信 · 底部导航</title>
+    <link rel="stylesheet" href="font/iconfont.css">
+    <style>
+        :root {
+            color-scheme: light;
+            --wp-green: #07c160;
+            --wp-ink: #191919;
+            --wp-muted: #999;
+            --wp-line: #ededed;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            display: grid;
+            min-height: 100vh;
+            margin: 0;
+            place-items: center;
+            background: #e8e8e8;
+            color: var(--wp-ink);
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+        }
+
+        .wp_phone {
+            display: flex;
+            width: min(100%, 430px);
+            height: min(900px, 100vh);
+            min-height: 620px;
+            flex-direction: column;
+            overflow: hidden;
+            background: #f7f7f7;
+            box-shadow: 0 16px 55px rgba(0, 0, 0, 0.13);
+        }
+
+        .wp_status {
+            display: flex;
+            height: 34px;
+            flex: 0 0 34px;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            background: #ededed;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .wp_status_signals {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+        }
+
+        .wp_header {
+            display: flex;
+            height: 54px;
+            flex: 0 0 54px;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 18px;
+            border-bottom: 1px solid #e5e5e5;
+            background: #ededed;
+        }
+
+        .wp_header h1 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .wp_add_button {
+            display: grid;
+            width: 34px;
+            height: 34px;
+            place-items: center;
+            border: 0;
+            border-radius: 50%;
+            background: transparent;
+            color: #222;
+            font-size: 27px;
+            line-height: 1;
+        }
+
+        .wp_search {
+            display: flex;
+            height: 52px;
+            flex: 0 0 52px;
+            align-items: center;
+            padding: 8px 12px;
+            background: #f7f7f7;
+        }
+
+        .wp_search_box {
+            display: flex;
+            width: 100%;
+            height: 36px;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            border-radius: 6px;
+            background: #ededed;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .wp_search_icon {
+            font-size: 15px;
+        }
+
+        .wp_iconfont {
+            font-family: "iconfont";
+            font-style: normal;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .wp_chat_list {
+            flex: 1;
+            overflow-y: auto;
+            background: #fff;
+        }
+
+        .wp_chat {
+            display: flex;
+            min-height: 76px;
+            align-items: center;
+            padding: 10px 14px;
+            gap: 12px;
+        }
+
+        .wp_chat + .wp_chat {
+            border-top: 1px solid var(--wp-line);
+        }
+
+        .wp_avatar {
+            position: relative;
+            display: grid;
+            width: 52px;
+            height: 52px;
+            flex: 0 0 52px;
+            place-items: center;
+            overflow: visible;
+            border-radius: 7px;
+            color: #fff;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .wp_avatar_1 { background: linear-gradient(145deg, #f6b77b, #e67d54); }
+        .wp_avatar_2 { background: linear-gradient(145deg, #8fc9a0, #439875); }
+        .wp_avatar_3 { background: linear-gradient(145deg, #a8b9dc, #657eaf); }
+        .wp_avatar_4 { background: linear-gradient(145deg, #f1a3a4, #d75d6a); }
+        .wp_avatar_5 { background: linear-gradient(145deg, #e6ce83, #bc9b42); }
+        .wp_avatar_6 { background: linear-gradient(145deg, #b2a2d7, #7866a7); }
+
+        .wp_badge {
+            position: absolute;
+            top: -5px;
+            right: -6px;
+            display: grid;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            place-items: center;
+            border: 1px solid #fff;
+            border-radius: 10px;
+            background: #fa5151;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 400;
+            line-height: 1;
+        }
+
+        .wp_chat_content {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .wp_chat_topline,
+        .wp_chat_bottomline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .wp_chat_name {
+            overflow: hidden;
+            margin: 0;
+            font-size: 16px;
+            font-weight: 500;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .wp_chat_time {
+            flex: 0 0 auto;
+            color: #b2b2b2;
+            font-size: 11px;
+        }
+
+        .wp_chat_message {
+            overflow: hidden;
+            margin: 6px 0 0;
+            color: #999;
+            font-size: 13px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .wp_nav {
+            display: grid;
+            min-height: 64px;
+            flex: 0 0 64px;
+            grid-template-columns: repeat(4, 1fr);
+            border-top: 1px solid #e5e5e5;
+            background: #f7f7f7;
+        }
+
+        .wp_nav_item {
+            display: flex;
+            min-width: 0;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 3px;
+            color: #555;
+            font-size: 10px;
+            line-height: 1.2;
+        }
+
+        .wp_nav_icon {
+            position: relative;
+            font-size: 25px;
+            line-height: 1;
+        }
+
+        .wp_nav_item[aria-current="page"] {
+            color: var(--wp-green);
+        }
+
+        .wp_nav_dot {
+            position: absolute;
+            top: -2px;
+            right: -5px;
+            width: 8px;
+            height: 8px;
+            border: 1px solid #f7f7f7;
+            border-radius: 50%;
+            background: #fa5151;
+        }
+
+        .wp_home_indicator {
+            display: none;
+        }
+
+        @media (max-width: 430px) {
+            body {
+                display: block;
+                min-height: 100vh;
+                background: #f7f7f7;
+            }
+
+            .wp_phone {
+                width: 100%;
+                height: 100vh;
+                height: 100dvh;
+                min-height: 560px;
+                box-shadow: none;
+            }
+
+            .wp_home_indicator {
+                display: block;
+                height: 5px;
+                flex: 0 0 5px;
+                background: #f7f7f7;
+            }
+
+            .wp_home_indicator::after {
+                display: block;
+                width: 108px;
+                height: 4px;
+                margin: 0 auto;
+                border-radius: 4px;
+                background: #111;
+                content: "";
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="wp_phone">
+        <div class="wp_status" aria-label="状态栏">
+            <span>9:41</span>
+            <span class="wp_status_signals" aria-hidden="true">●●● ▰</span>
+        </div>
+        <header class="wp_header">
+            <h1>微信</h1>
+            <button class="wp_add_button" type="button" aria-label="添加">+</button>
+        </header>
+        <div class="wp_search" role="search">
+            <div class="wp_search_box">
+                <span class="wp_iconfont wp_search_icon" aria-hidden="true">&#xe630;</span>
+                <span>搜索</span>
+            </div>
+        </div>
+        <section class="wp_chat_list" aria-label="最近聊天">
+            <article class="wp_chat">
+                <div class="wp_avatar wp_avatar_1">林<span class="wp_badge">2</span></div>
+                <div class="wp_chat_content">
+                    <div class="wp_chat_topline"><h2 class="wp_chat_name">林同学</h2><time class="wp_chat_time">16:28</time></div>
+                    <div class="wp_chat_bottomline"><p class="wp_chat_message">周末一起去图书馆吗？</p></div>
+                </div>
+            </article>
+            <article class="wp_chat">
+                <div class="wp_avatar wp_avatar_2">设<span class="wp_badge">5</span></div>
+                <div class="wp_chat_content">
+                    <div class="wp_chat_topline"><h2 class="wp_chat_name">网页设计学习群</h2><time class="wp_chat_time">16:16</time></div>
+                    <div class="wp_chat_bottomline"><p class="wp_chat_message">王老师：作业记得上传到课程平台</p></div>
+                </div>
+            </article>
+            <article class="wp_chat">
+                <div class="wp_avatar wp_avatar_3">魏</div>
+                <div class="wp_chat_content">
+                    <div class="wp_chat_topline"><h2 class="wp_chat_name">文件传输助手</h2><time class="wp_chat_time">15:42</time></div>
+                    <div class="wp_chat_bottomline"><p class="wp_chat_message">[文件] 网页设计作业.zip</p></div>
+                </div>
+            </article>
+            <article class="wp_chat">
+                <div class="wp_avatar wp_avatar_4">家</div>
+                <div class="wp_chat_content">
+                    <div class="wp_chat_topline"><h2 class="wp_chat_name">家人</h2><time class="wp_chat_time">14:09</time></div>
+                    <div class="wp_chat_bottomline"><p class="wp_chat_message">好的，路上注意安全。</p></div>
+                </div>
+            </article>
+            <article class="wp_chat">
+                <div class="wp_avatar wp_avatar_5">读</div>
+                <div class="wp_chat_content">
+                    <div class="wp_chat_topline"><h2 class="wp_chat_name">读书会</h2><time class="wp_chat_time">昨天</time></div>
+                    <div class="wp_chat_bottomline"><p class="wp_chat_message">下次分享的书目已经发群公告啦</p></div>
+                </div>
+            </article>
+            <article class="wp_chat">
+                <div class="wp_avatar wp_avatar_6">校</div>
+                <div class="wp_chat_content">
+                    <div class="wp_chat_topline"><h2 class="wp_chat_name">校园通知</h2><time class="wp_chat_time">昨天</time></div>
+                    <div class="wp_chat_bottomline"><p class="wp_chat_message">关于本周教学安排的通知</p></div>
+                </div>
+            </article>
+        </section>
+        <nav class="wp_nav" aria-label="微信主导航">
+            <div class="wp_nav_item" aria-current="page">
+                <span class="wp_iconfont wp_nav_icon" aria-hidden="true">&#xe600;<span class="wp_nav_dot"></span></span>
+                <span>微信</span>
+            </div>
+            <div class="wp_nav_item">
+                <span class="wp_iconfont wp_nav_icon" aria-hidden="true">&#xe630;</span>
+                <span>通讯录</span>
+            </div>
+            <div class="wp_nav_item">
+                <span class="wp_iconfont wp_nav_icon" aria-hidden="true">&#xe638;</span>
+                <span>发现</span>
+            </div>
+            <div class="wp_nav_item">
+                <span class="wp_iconfont wp_nav_icon" aria-hidden="true">&#xe60b;</span>
+                <span>我</span>
+            </div>
+        </nav>
+        <div class="wp_home_indicator" aria-hidden="true"></div>
+    </main>
+</body>
+</html>

@@ -81,3 +81,27 @@ Prompt: 创建ssh公钥，上传gitee
 ## 2026-10-26-16-23
 - Model: Kimi-K3
 - Prompt: 创建15-2.html，展示javascript程序结构：条件，循环。然后提交到github。
+
+## 2026-10-26-16-30
+- Model: Copilot SDK (model unspecified)
+- Prompt: 创建微信.html，根据font中的图标模仿微信界面创建微信下导航
+
+## 2026-10-29-15-39
+- Model: Kimi-K3
+- Prompt: 编写16-1.html，形象的展示javascript主要的数组方法。
+
+## 2026-10-29-15-47
+- Model: Kimi-K3
+- Prompt: 生成16-2.html，形象的展示javascript对象的字符串
+
+## 2026-10-29-16-20
+- Model: Kimi-K3
+- Prompt: 完成16-3.html，根据给定图片完成网页，尽可能和原图相似。
+
+## 2026-10-29-16-34
+- Model: Kimi-K3
+- Prompt: 完成16-4.html，根据给定图片完成网页，完成图片内跳转
+
+## 2026-10-29-16-39
+- Model: Kimi-K3
+- Prompt: 上传gith

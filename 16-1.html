@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<!-- 姓名：魏鹏 日期：2026-10-29 功能名称：JavaScript 主要数组方法可视化演示 -->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>16-1 JS 数组方法 · 魏鹏</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #fdf4ff 100%);
+            min-height: 100vh;
+            padding: 28px 14px 80px;
+        }
+        .wp_container { max-width: 1040px; margin: 0 auto; }
+        .wp_header { text-align: center; margin-bottom: 22px; }
+        .wp_title { font-size: 30px; color: #0f172a; margin-bottom: 4px; }
+        .wp_title .wp_name { color: #7c3aed; font-weight: 700; }
+        .wp_subtitle { color: #64748b; font-size: 14px; }
+
+        /* ===== 基础数组展示区 ===== */
+        .wp_base-panel {
+            background: #fff;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, .06);
+            margin-bottom: 22px;
+        }
+        .wp_base-title {
+            font-size: 16px; color: #0f172a; margin-bottom: 14px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .wp_reset-btn {
+            background: #7c3aed; color: #fff; border: none;
+            padding: 6px 14px; border-radius: 6px; font-size: 13px;
+            cursor: pointer;
+        }
+        .wp_reset-btn:hover { background: #6d28d9; }
+        .wp_array {
+            display: flex; flex-wrap: wrap; gap: 6px;
+            padding: 14px; background: #f8fafc; border-radius: 10px;
+            min-height: 76px;
+        }
+        .wp_item {
+            width: 58px; height: 64px; border-radius: 8px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            font-family: Consolas, monospace; font-weight: bold;
+            background: linear-gradient(180deg, #60a5fa, #3b82f6);
+            color: #fff;
+            transition: transform .2s, box-shadow .2s;
+            position: relative;
+        }
+        .wp_item.wp_highlight {
+            transform: translateY(-4px) scale(1.08);
+            box-shadow: 0 6px 18px rgba(250, 204, 21, .6);
+            background: linear-gradient(180deg, #fde047, #f59e0b) !important;
+            color: #78350f;
+        }
+        .wp_item.wp_new {
+            animation: wp_pop .35s ease-out;
+            background: linear-gradient(180deg, #86efac, #16a34a) !important;
+        }
+        .wp_item.wp_removed {
+            animation: wp_fade .4s ease-out forwards;
+        }
+        @keyframes wp_pop {
+            0% { transform: scale(0); opacity: 0; }
+            70% { transform: scale(1.15); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes wp_fade {
+            to { transform: translateX(-30px) scale(.3); opacity: 0; }
+        }
+        .wp_item .wp_idx {
+            font-size: 10px; opacity: .8; font-weight: normal;
+            position: absolute; top: 3px; left: 5px;
+        }
+        .wp_item .wp_val { font-size: 18px; }
+
+        /* ===== 分类标签 ===== */
+        .wp_category { margin: 22px 0 14px; font-size: 15px; font-weight: 700; color: #0f172a; }
+        .wp_cat-badge {
+            display: inline-block; padding: 2px 10px; border-radius: 12px;
+            font-size: 12px; margin-left: 8px; font-weight: 500;
+        }
+        .wp_cat-change  { background: #fecaca; color: #b91c1c; }
+        .wp_cat-immute  { background: #bfdbfe; color: #1e40af; }
+        .wp_cat-iter    { background: #d9f99d; color: #3f6212; }
+
+        /* ===== 方法卡片 ===== */
+        .wp_methods-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 14px;
+        }
+        .wp_method {
+            background: #fff; border-radius: 12px; padding: 16px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, .06);
+            border-top: 3px solid #64748b;
+            display: flex; flex-direction: column;
+        }
+        .wp_method.wp_change { border-top-color: #dc2626; }
+        .wp_method.wp_immute { border-top-color: #2563eb; }
+        .wp_method.wp_iter   { border-top-color: #65a30d; }
+        .wp_method h3 {
+            font-size: 16px; color: #0f172a; font-family: Consolas, monospace;
+            margin-bottom: 4px;
+        }
+        .wp_method p.wp_desc { font-size: 12px; color: #64748b; margin-bottom: 10px; line-height: 1.6; }
+        .wp_params {
+            display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;
+        }
+        .wp_param {
+            padding: 3px 6px; border: 1px solid #e2e8f0; border-radius: 4px;
+            font-size: 12px; font-family: Consolas, monospace;
+        }
+        .wp_param input {
+            width: 60px; border: none; outline: none; font-family: inherit;
+            font-size: 12px; padding: 0;
+        }
+        .wp_run-btn {
+            background: #0f172a; color: #fff; border: none;
+            padding: 6px 14px; border-radius: 6px; font-size: 13px;
+            cursor: pointer; width: 100%; margin-bottom: 10px;
+        }
+        .wp_run-btn:hover { background: #334155; }
+        .wp_code {
+            background: #0f172a; color: #e2e8f0; border-radius: 6px;
+            padding: 10px 12px; font-family: Consolas, monospace;
+            font-size: 12px; line-height: 1.7; overflow-x: auto;
+            flex: 1; min-height: 54px;
+        }
+        .wp_code .wp-kw { color: #c084fc; }
+        .wp_code .wp-fn { color: #22d3ee; }
+        .wp_code .wp-str { color: #86efac; }
+        .wp_result {
+            margin-top: 8px; padding: 8px 10px; border-radius: 6px;
+            background: #f1f5f9; font-family: Consolas, monospace;
+            font-size: 12px; min-height: 26px; color: #334155;
+            white-space: pre-wrap; word-break: break-all;
+        }
+        .wp_result .wp-ret-label { color: #94a3b8; margin-right: 4px; }
+        .wp_result .wp-ret-val { color: #0f172a; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="wp_container">
+    <div class="wp_header">
+        <h1 class="wp_title">JavaScript 数组方法可视化 · <span class="wp_name">魏鹏</span></h1>
+        <p class="wp_subtitle">点击每个方法的"演示"按钮，观察原数组变化与返回值</p>
+    </div>
+
+    <!-- ===== 基础数组 ===== -->
+    <div class="wp_base-panel">
+        <div class="wp_base-title">
+            <span>基础数组 <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-family:Consolas,monospace;">wp_arr = [10, 23, 5, 17, 42, 8, 13]</code></span>
+            <button class="wp_reset-btn" id="wp_resetAll">重置所有数组</button>
+        </div>
+        <div class="wp_array" id="wp_baseArray"></div>
+    </div>
+
+    <!-- ===== 会改变原数组 ===== -->
+    <div class="wp_category">
+        ① 会<strong style="color:#dc2626">改变原数组</strong>的方法
+        <span class="wp_cat-badge wp_cat-change">mutating</span>
+    </div>
+    <div class="wp_methods-grid" id="wp_changeGroup"></div>
+
+    <!-- ===== 返回新数组/值 ===== -->
+    <div class="wp_category">
+        ② 返回<strong style="color:#2563eb">新数组/值</strong>，不改变原数组
+        <span class="wp_cat-badge wp_cat-immute">non-mutating</span>
+    </div>
+    <div class="wp_methods-grid" id="wp_immuteGroup"></div>
+
+    <!-- ===== 遍历/查找 ===== -->
+    <div class="wp_category">
+        ③ <strong style="color:#65a30d">遍历 / 查找</strong>类方法
+        <span class="wp_cat-badge wp_cat-iter">iteration</span>
+    </div>
+    <div class="wp_methods-grid" id="wp_iterGroup"></div>
+</div>
+
+<script>
+/* ============================================================
+ *  单一事实来源：基础数组（每次 reset 时恢复此值）
+ * ============================================================ */
+var wp_ORIGINAL = [10, 23, 5, 17, 42, 8, 13];
+var wp_arr = [];              // 运行时的可变副本
+
+/* ===== 渲染顶部基础数组 ===== */
+function wp_renderArray(highlightIdxes, highlightClass) {
+    var wp_box = document.getElementById("wp_baseArray");
+    wp_box.innerHTML = "";
+    for (var wp_i = 0; wp_i < wp_arr.length; wp_i++) {
+        var wp_item = document.createElement("div");
+        wp_item.className = "wp_item";
+        if (highlightIdxes && highlightIdxes.indexOf(wp_i) !== -1) {
+            wp_item.classList.add(highlightClass || "wp_highlight");
+        }
+        wp_item.innerHTML = "<span class='wp_idx'>[" + wp_i + "]</span>" +
+                            "<span class='wp_val'>" + wp_arr[wp_i] + "</span>";
+        wp_box.appendChild(wp_item);
+    }
+}
+
+/* ===== 重置 ===== */
+function wp_reset() {
+    wp_arr = wp_ORIGINAL.slice();
+    wp_renderArray();
+    // 清空所有结果区
+    document.querySelectorAll(".wp_result").forEach(function(el) { el.textContent = ""; });
+}
+document.getElementById("wp_resetAll").onclick = wp_reset;
+wp_reset();
+
+/* ============================================================
+ *  方法注册表：统一用 wp_run(id, args...) 执行 + 自动高亮 + 显示返回值
+ * ============================================================ */
+var wp_methods = [];
+
+function wp_addMethod(group, id, name, desc, params, codeHTML, runFn) {
+    wp_methods.push({
+        wp_group: group, wp_id: id, wp_name: name, wp_desc: desc,
+        wp_params: params, wp_code: codeHTML, wp_run: runFn
+    });
+}
+
+/* ---------- 改变原数组 ---------- */
+wp_addMethod("change", "push", "push(...items)", "在末尾添加元素，返回新长度",
+    [{ label: "添加", key: "v", default: "99" }],
+    '<span class="wp-kw">const</span> wp_ret = wp_arr.<span class="wp-fn">push</span>(99);',
+    function (m) {
+        var wp_v = parseInt(m.v, 10) || 0;
+        var wp_len = wp_arr.length;
+        var wp_ret = wp_arr.push(wp_v);
+        wp_renderArray([wp_arr.length - 1], "wp_new");
+        return { wp_ret: wp_ret, wp_hint: "新长度 " + wp_ret + "，新元素位置 [" + (wp_arr.length - 1) + "]" };
+    });
+
+wp_addMethod("change", "pop", "pop()", "移除最后一个元素，返回被移除的值",
+    [],
+    '<span class="wp-kw">const</span> wp_ret = wp_arr.<span class="wp-fn">pop</span>();',
+    function () {
+        if (wp_arr.length === 0) { wp_renderArray(); return { wp_ret: undefined, wp_hint: "数组已空" }; }
+        var wp_ret = wp_arr.pop();
+        wp_renderArray();
+        return { wp_ret: wp_ret, wp_hint: "删除了末尾 " + wp_ret };
+    });
+
+wp_addMethod("change", "shift", "shift()", "移除第一个元素，返回被移除的值",
+    [],
+    '<span class="wp-kw">const</span> wp_ret = wp_arr.<span class="wp-fn">shift</span>();',
+    function () {
+        if (wp_arr.length === 0) { wp_renderArray(); return { wp_ret: undefined, wp_hint: "数组已空" }; }
+        var wp_ret = wp_arr.shift();
+        wp_renderArray();
+        return { wp_ret: wp_ret, wp_hint: "删除了首位 " + wp_ret };
+    });
+
+wp_addMethod("change", "unshift", "unshift(...items)", "在开头添加元素，返回新长度",
+    [{ label: "添加", key: "v", default: "7" }],
+    '<span class="wp-kw">const</span> wp_ret = wp_arr.<span class="wp-fn">unshift</span>(7);',
+    function (m) {
+        var wp_v = parseInt(m.v, 10) || 0;
+        var wp_ret = wp_arr.unshift(wp_v);
+        wp_renderArray([0], "wp_new");
+        return { wp_ret: wp_ret, wp_hint: "新长度 " + wp_ret + "，新元素位置 [0]" };
+    });
+
+wp_addMethod("change", "splice", "splice(start, deleteCount, ...items)", "删/插/替换元素，返回被删除的数组",
+    [
+        { label: "起始 start", key: "s", default: "2" },
+        { label: "删除数 deleteCount", key: "d", default: "1" },
+        { label: "插入值(可选)", key: "i", default: "" }
+    ],
+    '<span class="wp-kw">const</span> wp_ret = wp_arr.<span class="wp-fn">splice</span>(2, 1, 100);',
+    function (m) {
+        var wp_s = parseInt(m.s, 10) || 0;
+        var wp_d = parseInt(m.d, 10) || 0;
+        var wp_i = m.i.trim();
+        var wp_args = [wp_s, wp_d];
+        if (wp_i !== "") wp_args.push(parseInt(wp_i, 10) || 0);
+        var wp_ret = wp_arr.splice.apply(wp_arr, wp_args);
+        wp_renderArray();
+        return { wp_ret: wp_ret, wp_hint: "从 index " + wp_s + " 删除了 " + wp_ret.length + " 项，插入了 " + Math.max(0, wp_args.length - 2) + " 项" };
+    });
+
+wp_addMethod("change", "sort", "sort((a,b) => a-b)", "原地排序，返回原数组引用",
+    [],
+    'wp_arr.<span class="wp-fn">sort</span>((a, b) => a - b);',
+    function () {
+        wp_arr.sort(function (a, b) { return a - b; });
+        wp_renderArray();
+        return { wp_ret: "[原数组引用]", wp_hint: "升序排序完成" };
+    });
+
+wp_addMethod("change", "reverse", "reverse()", "原地反转，返回原数组引用",
+    [],
+    'wp_arr.<span class="wp-fn">reverse</span>();',
+    function () {
+        wp_arr.reverse();
+        wp_renderArray();
+        return { wp_ret: "[原数组引用]", wp_hint: "已反转" };
+    });
+
+/* ---------- 不改变原数组 ---------- */
+wp_addMethod("immute", "slice", "slice(start, end)", "返回 [start, end) 片段的新数组",
+    [
+        { label: "start", key: "s", default: "1" },
+        { label: "end", key: "e", default: "4" }
+    ],
+    '<span class="wp-kw">const</span> wp_ret = wp_arr.<span class="wp-fn">slice</span>(1, 4);',
+    function (m) {
+        var wp_s = parseInt(m.s, 10) || 0;
+        var wp_e = parseInt(m.e, 10) || 0;
+        var wp_ret = wp_arr.slice(wp_s, wp_e);
+        wp_renderArray(); // 原数组不变
+        var wp_hl = [];
+        for (var wp_k = wp_s; wp_k < wp_e && wp_k < wp_arr.length; wp_k++) wp_hl.push(wp_k);
+        wp_renderArray(wp_hl, "wp_highlight");
+        return { wp_ret: wp_ret, wp_hint: "原数组未变；切片范围 [" + wp_s + "," + wp_e + ") = " + wp_ret.length + " 项" };
+    });
+
+wp_addMethod("immute", "concat", "concat(...arrays)", "拼接数组，返回新数组",
+    [{ label: "追加值(逗号分隔)", key: "v", default: "99,88" }],
+    '<span class="wp-kw">const</span> wp_ret = wp_arr.<span class="wp-fn">concat</span>([99, 88]);',
+    function (m) {
+        var wp_vals = m.v.split(",").map(function (x) { return parseInt(x.trim(), 10); }).filter(function (x) { return !isNaN(x); });
+        var wp_ret = wp_arr.concat(wp_vals);
+        wp_renderArray();
+        return { wp_ret: wp_ret, wp_hint: "新数组长度 " + wp_ret.length + "，原数组不变（长度 " + wp_arr.length + "）" };
+    });
+
+wp_addMethod("immute", "join", "join(separator)", "把所有元素拼接成一个字符串",
+    [{ label: "分隔符", key: "s", default: "-" }],
+    '<span class="wp-kw">const</span> wp_ret = wp_arr.<span class="wp-fn">join</span>(<span class="wp-str">"-"</span>);',
+    function (m) {
+        var wp_ret = wp_arr.join(m.s);
+        wp_renderArray();
+        return { wp_ret: wp_ret, wp_hint: "字符串长度 " + wp_ret.length };
+    });
+
+wp_addMethod("immute", "map", "map(fn)", "每个元素执行 fn，返回结果新数组",
+    [{ label: "表达式", key: "expr", default: "x*2" }],
+    '<span class="wp-kw">const</span> wp_ret = wp_arr.<span class="wp-fn">map</span>(x => x * 2);',
+    function (m) {
+        var wp_ret;
+        try {
+            wp_ret = wp_arr.map(new Function("x", "return " + m.expr)());
+        } catch (e) {
+            wp_ret = ["表达式错误: " + e.message];
+        }
+        wp_renderArray();
+        return { wp_ret: wp_ret, wp_hint: "map 后长度仍为 " + wp_arr.length };
+    });
+
+wp_addMethod("immute", "filter", "filter(predicate)", "返回符合条件的元素新数组",
+    [{ label: "过滤条件", key: "expr", default: "x>10" }],
+    '<span class="wp-kw">const</span> wp_ret = wp_arr.<span class="wp-fn">filter</span>(x => x > 10);',
+    function (m) {
+        var wp_fn;
+        try {
+            wp_fn = new Function("x", "return (" + m.expr + ")");
+        } catch (e) { return { wp_ret: ["表达式错误: " + e.message], wp_hint: "" }; }
+        var wp_ret = wp_arr.filter(wp_fn);
+        var wp_hl = [];
+        wp_arr.forEach(function (v, i) { if (wp_fn(v)) wp_hl.push(i); });
+        wp_renderArray(wp_hl, "wp_highlight");
+        return { wp_ret: wp_ret, wp_hint: "命中 " + wp_ret.length + " 项，原数组未变" };
+    });
+
+/* ---------- 遍历 / 查找 ---------- */
+wp_addMethod("iter", "find", "find(predicate)", "返回第一个符合条件的元素值",
+    [{ label: "查找条件", key: "expr", default: "x>20" }],
+    '<span class="wp-kw">const</span> wp_ret = wp_arr.<span class="wp-fn">find</span>(x => x > 20);',
+    function (m) {
+        var wp_fn;
+        try { wp_fn = new Function("x", "return (" + m.expr + ")"); }
+        catch (e) { return { wp_ret: ["表达式错误: " + e.message], wp_hint: "" }; }
+        var wp_ret = wp_arr.find(wp_fn);
+        var wp_idx = wp_arr.findIndex(wp_fn);
+        wp_renderArray(wp_idx >= 0 ? [wp_idx] : null, "wp_highlight");
+        return { wp_ret: wp_ret === undefined ? undefined : wp_ret, wp_hint: wp_idx >= 0 ? "位置 [" + wp_idx + "]" : "未找到，返回 undefined" };
+    });
+
+wp_addMethod("iter", "findIndex", "findIndex(predicate)", "返回第一个符合条件的索引（-1 表示未找到）",
+    [{ label: "查找条件", key: "expr", default: "x>20" }],
+    '<span class="wp-kw">const</span> wp_ret = wp_arr.<span class="wp-fn">findIndex</span>(x => x > 20);',
+    function (m) {
+        var wp_fn;
+        try { wp_fn = new Function("x", "return (" + m.expr + ")"); }
+        catch (e) { return { wp_ret: ["表达式错误: " + e.message], wp_hint: "" }; }
+        var wp_ret = wp_arr.findIndex(wp_fn);
+        wp_renderArray(wp_ret >= 0 ? [wp_ret] : null, "wp_highlight");
+        return { wp_ret: wp_ret, wp_hint: wp_ret >= 0 ? "命中元素 " + wp_arr[wp_ret] : "未找到" };
+    });
+
+wp_addMethod("iter", "every", "every(predicate)", "全部符合条件才返回 true",
+    [{ label: "条件", key: "expr", default: "x>0" }],
+    '<span class="wp-kw">const</span> wp_ret = wp_arr.<span class="wp-fn">every</span>(x => x > 0);',
+    function (m) {
+        var wp_fn;
+        try { wp_fn = new Function("x", "return (" + m.expr + ")"); }
+        catch (e) { return { wp_ret: ["表达式错误: " + e.message], wp_hint: "" }; }
+        var wp_ret = wp_arr.every(wp_fn);
+        wp_renderArray();
+        return { wp_ret: wp_ret, wp_hint: wp_ret ? "全部满足" : "存在不满足的元素" };
+    });
+
+wp_addMethod("iter", "some", "some(predicate)", "有一个符合条件就返回 true",
+    [{ label: "条件", key: "expr", default: "x>40" }],
+    '<span class="wp-kw">const</span> wp_ret = wp_arr.<span class="wp-fn">some</span>(x => x > 40);',
+    function (m) {
+        var wp_fn;
+        try { wp_fn = new Function("x", "return (" + m.expr + ")"); }
+        catch (e) { return { wp_ret: ["表达式错误: " + e.message], wp_hint: "" }; }
+        var wp_ret = wp_arr.some(wp_fn);
+        wp_renderArray();
+        return { wp_ret: wp_ret, wp_hint: wp_ret ? "至少一个满足" : "全部不满足" };
+    });
+
+wp_addMethod("iter", "includes", "includes(value)", "是否包含某值",
+    [{ label: "值", key: "v", default: "17" }],
+    '<span class="wp-kw">const</span> wp_ret = wp_arr.<span class="wp-fn">includes</span>(17);',
+    function (m) {
+        var wp_v = parseInt(m.v, 10);
+        var wp_ret = wp_arr.includes(wp_v);
+        var wp_idx = wp_arr.indexOf(wp_v);
+        wp_renderArray(wp_idx >= 0 ? [wp_idx] : null, "wp_highlight");
+        return { wp_ret: wp_ret, wp_hint: wp_ret ? "位置 [" + wp_idx + "]" : "未找到" };
+    });
+
+wp_addMethod("iter", "forEach", "forEach(callback)", "遍历每个元素执行回调，无返回值",
+    [{ label: "表达式", key: "expr", default: "console.log(x)" }],
+    'wp_arr.<span class="wp-fn">forEach</span>(x => console.log(x));',
+    function (m) {
+        var wp_logs = [];
+        var wp_fn;
+        try {
+            wp_fn = new Function("x", "wp_logs.push(" + m.expr.replace(/console\.log\(x\)/g, "x") + ")");
+        } catch (e) { return { wp_ret: ["表达式错误: " + e.message], wp_hint: "" }; }
+        wp_arr.forEach(wp_fn);
+        wp_renderArray();
+        return { wp_ret: "undefined", wp_hint: "forEach 无返回值；遍历依次输出: " + wp_logs.join(", ") };
+    });
+
+/* ============================================================
+ *  渲染所有方法卡片 + 绑定点击事件
+ * ============================================================ */
+function wp_renderMethodCard(m) {
+    var wp_div = document.createElement("div");
+    wp_div.className = "wp_method wp_" + m.wp_group;
+    var wp_paramsHTML = "";
+    for (var wp_i = 0; wp_i < m.wp_params.length; wp_i++) {
+        var wp_p = m.wp_params[wp_i];
+        wp_paramsHTML += "<span class='wp_param'>" + wp_p.label + ": <input data-key='" + wp_p.key + "' value='" + wp_p.default + "'></span>";
+    }
+
+    wp_div.innerHTML =
+        "<h3>" + m.wp_name + "</h3>" +
+        "<p class='wp_desc'>" + m.wp_desc + "</p>" +
+        "<div class='wp_params'>" + wp_paramsHTML + "</div>" +
+        "<button class='wp_run-btn'>▶ 演示</button>" +
+        "<pre class='wp_code'>" + m.wp_code + "</pre>" +
+        "<div class='wp_result'></div>";
+
+    wp_div.querySelector(".wp_run-btn").onclick = function () {
+        // 采集参数
+        var wp_args = {};
+        wp_div.querySelectorAll("input[data-key]").forEach(function (inp) {
+            wp_args[inp.dataset.key] = inp.value;
+        });
+        var wp_res = m.wp_run(wp_args);
+        // 展示返回值（统一格式）
+        var wp_result = wp_div.querySelector(".wp_result");
+        var wp_show = wp_res.wp_ret;
+        if (Array.isArray(wp_show)) {
+            wp_show = "[" + wp_show.join(", ") + "]";
+        } else if (typeof wp_show === "object" && wp_show !== null) {
+            wp_show = JSON.stringify(wp_show);
+        } else if (wp_show === undefined) {
+            wp_show = "undefined";
+        } else if (typeof wp_show === "string") {
+            wp_show = '"' + wp_show + '"';
+        }
+        wp_result.innerHTML = "<span class='wp-ret-label'>返回值:</span><span class='wp-ret-val'>" + wp_show + "</span>" +
+            (wp_res.wp_hint ? "\n" + wp_res.wp_hint : "");
+    };
+    return wp_div;
+}
+
+var wp_groupMap = {
+    change: document.getElementById("wp_changeGroup"),
+    immute: document.getElementById("wp_immuteGroup"),
+    iter:   document.getElementById("wp_iterGroup")
+};
+wp_methods.forEach(function (m) {
+    wp_groupMap[m.wp_group].appendChild(wp_renderMethodCard(m));
+});
+</script>
+</body>
+</html>

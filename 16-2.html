@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<!-- 姓名：魏鹏 日期：2026-10-29 功能名称：JavaScript 字符串对象方法可视化演示 + 对象↔字符串转换 -->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>16-2 JS 字符串 · 魏鹏</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #fefce8 0%, #eff6ff 100%);
+            min-height: 100vh;
+            padding: 28px 14px 80px;
+        }
+        .wp_container { max-width: 1080px; margin: 0 auto; }
+        .wp_header { text-align: center; margin-bottom: 22px; }
+        .wp_title { font-size: 30px; color: #0f172a; margin-bottom: 4px; }
+        .wp_title .wp_name { color: #d97706; font-weight: 700; }
+        .wp_subtitle { color: #64748b; font-size: 14px; }
+
+        /* ===== 基础字符串可视化区 ===== */
+        .wp_base-panel {
+            background: #fff; border-radius: 14px; padding: 20px;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, .06); margin-bottom: 22px;
+        }
+        .wp_base-title {
+            font-size: 16px; color: #0f172a; margin-bottom: 14px;
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 10px;
+        }
+        .wp_reset-btn {
+            background: #d97706; color: #fff; border: none;
+            padding: 6px 14px; border-radius: 6px; font-size: 13px;
+            cursor: pointer;
+        }
+        .wp_reset-btn:hover { background: #b45309; }
+        .wp_base-input {
+            width: 100%; padding: 10px 12px; font-size: 15px;
+            border: 2px solid #e2e8f0; border-radius: 8px; margin-bottom: 14px;
+            font-family: Consolas, monospace;
+        }
+        .wp_base-input:focus { outline: none; border-color: #d97706; }
+        .wp_chars {
+            display: flex; flex-wrap: wrap; gap: 4px;
+            padding: 14px; background: #fefce8; border-radius: 10px;
+            min-height: 70px;
+        }
+        .wp_char {
+            min-width: 36px; height: 54px; border-radius: 6px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            font-family: Consolas, monospace; font-weight: bold;
+            background: linear-gradient(180deg, #fca5a5, #ef4444);
+            color: #fff; transition: transform .2s, box-shadow .2s;
+            position: relative; font-size: 16px;
+        }
+        .wp_char.wp_space { background: linear-gradient(180deg, #e2e8f0, #94a3b8); color: #475569; }
+        .wp_char.wp_highlight {
+            transform: translateY(-4px) scale(1.12);
+            box-shadow: 0 6px 18px rgba(234, 179, 8, .6);
+            background: linear-gradient(180deg, #fde047, #f59e0b) !important;
+            color: #78350f !important;
+        }
+        .wp_char.wp_slice {
+            background: linear-gradient(180deg, #86efac, #16a34a) !important;
+            color: #052e16 !important;
+        }
+        .wp_char .wp_idx {
+            font-size: 10px; opacity: .85; font-weight: normal;
+            position: absolute; top: 2px;
+        }
+        .wp_len-info {
+            margin-top: 10px; font-size: 13px; color: #64748b;
+            font-family: Consolas, monospace;
+        }
+
+        /* ===== 分类标签 ===== */
+        .wp_category { margin: 22px 0 14px; font-size: 15px; font-weight: 700; color: #0f172a; }
+        .wp_cat-badge {
+            display: inline-block; padding: 2px 10px; border-radius: 12px;
+            font-size: 12px; margin-left: 8px; font-weight: 500;
+        }
+        .wp_cat-query   { background: #dbeafe; color: #1e40af; }
+        .wp_cat-mutate  { background: #fecaca; color: #b91c1c; }
+        .wp_cat-split   { background: #d9f99d; color: #3f6212; }
+        .wp_cat-json    { background: #fae8ff; color: #86198f; }
+
+        /* ===== 方法卡片 ===== */
+        .wp_methods-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 14px;
+        }
+        .wp_method {
+            background: #fff; border-radius: 12px; padding: 16px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, .06);
+            border-top: 3px solid #64748b; display: flex; flex-direction: column;
+        }
+        .wp_method.wp_query  { border-top-color: #2563eb; }
+        .wp_method.wp_mutate { border-top-color: #dc2626; }
+        .wp_method.wp_split  { border-top-color: #65a30d; }
+        .wp_method.wp_json   { border-top-color: #9333ea; }
+        .wp_method h3 {
+            font-size: 16px; color: #0f172a; font-family: Consolas, monospace;
+            margin-bottom: 4px;
+        }
+        .wp_method p.wp_desc { font-size: 12px; color: #64748b; margin-bottom: 10px; line-height: 1.6; }
+        .wp_params { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+        .wp_param {
+            padding: 3px 6px; border: 1px solid #e2e8f0; border-radius: 4px;
+            font-size: 12px; font-family: Consolas, monospace;
+            display: inline-flex; align-items: center; gap: 4px;
+        }
+        .wp_param input {
+            width: 70px; border: none; outline: none; font-family: inherit;
+            font-size: 12px; padding: 0; background: transparent;
+        }
+        .wp_run-btn {
+            background: #0f172a; color: #fff; border: none;
+            padding: 6px 14px; border-radius: 6px; font-size: 13px;
+            cursor: pointer; width: 100%; margin-bottom: 10px;
+        }
+        .wp_run-btn:hover { background: #334155; }
+        .wp_code {
+            background: #0f172a; color: #e2e8f0; border-radius: 6px;
+            padding: 10px 12px; font-family: Consolas, monospace;
+            font-size: 12px; line-height: 1.7; overflow-x: auto;
+            flex: 1; min-height: 54px;
+        }
+        .wp_code .wp-kw { color: #c084fc; }
+        .wp_code .wp-fn { color: #22d3ee; }
+        .wp_code .wp-str { color: #86efac; }
+        .wp_result {
+            margin-top: 8px; padding: 8px 10px; border-radius: 6px;
+            background: #f1f5f9; font-family: Consolas, monospace;
+            font-size: 12px; min-height: 26px; color: #334155;
+            white-space: pre-wrap; word-break: break-all;
+        }
+        .wp_result .wp-ret-label { color: #94a3b8; margin-right: 4px; }
+        .wp_result .wp-ret-val { color: #0f172a; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="wp_container">
+    <div class="wp_header">
+        <h1 class="wp_title">JavaScript 字符串 · 对象字符串化 · <span class="wp_name">魏鹏</span></h1>
+        <p class="wp_subtitle">点击"演示"，观察字符级高亮、切片范围与返回值；底部展示对象 ↔ 字符串转换</p>
+    </div>
+
+    <!-- ===== 基础字符串 ===== -->
+    <div class="wp_base-panel">
+        <div class="wp_base-title">
+            <span>基础字符串 <code style="background:#fef3c7;padding:2px 6px;border-radius:4px;font-family:Consolas,monospace;">wp_str = "Hello 魏鹏, 2026!"</code></span>
+            <button class="wp_reset-btn" id="wp_resetAll">重置</button>
+        </div>
+        <input type="text" class="wp_base-input" id="wp_inputStr" value="Hello 魏鹏, 2026!">
+        <div class="wp_chars" id="wp_baseChars"></div>
+        <div class="wp_len-info" id="wp_lenInfo"></div>
+    </div>
+
+    <!-- ===== 查询 ===== -->
+    <div class="wp_category">
+        ① 查询 / 提取
+        <span class="wp_cat-badge wp_cat-query">不改变原字符串</span>
+    </div>
+    <div class="wp_methods-grid" id="wp_queryGroup"></div>
+
+    <!-- ===== 变形 ===== -->
+    <div class="wp_category">
+        ② 变形 / 替换 / 去除空白
+        <span class="wp_cat-badge wp_cat-mutate">返回新字符串</span>
+    </div>
+    <div class="wp_methods-grid" id="wp_mutateGroup"></div>
+
+    <!-- ===== 拆分拼接 ===== -->
+    <div class="wp_category">
+        ③ 拆分 / 拼接
+        <span class="wp_cat-badge wp_cat-split">split / concat</span>
+    </div>
+    <div class="wp_methods-grid" id="wp_splitGroup"></div>
+
+    <!-- ===== 对象↔字符串 ===== -->
+    <div class="wp_category">
+        ④ 对象 ↔ 字符串（字符串化核心）
+        <span class="wp_cat-badge wp_cat-json">JSON.stringify / JSON.parse / 模板字符串</span>
+    </div>
+    <div class="wp_methods-grid" id="wp_jsonGroup"></div>
+</div>
+
+<script>
+/* ===== 基础字符串 & 可视化 ===== */
+var wp_ORIGINAL = "Hello 魏鹏, 2026!";
+var wp_str = wp_ORIGINAL;
+
+function wp_renderChars(highlightRange, highlightClass) {
+    var wp_box = document.getElementById("wp_baseChars");
+    wp_box.innerHTML = "";
+    for (var wp_i = 0; wp_i < wp_str.length; wp_i++) {
+        var wp_c = wp_str.charAt(wp_i);
+        var wp_item = document.createElement("div");
+        wp_item.className = "wp_char";
+        if (wp_c === " ") wp_item.classList.add("wp_space");
+
+        // 支持 [start,end) 区间或索引数组
+        var wp_hit = false;
+        if (highlightRange) {
+            if (Array.isArray(highlightRange)) {
+                wp_hit = highlightRange.indexOf(wp_i) !== -1;
+            } else if (wp_i >= highlightRange[0] && wp_i < highlightRange[1]) {
+                wp_hit = true;
+            }
+        }
+        if (wp_hit) wp_item.classList.add(highlightClass || "wp_highlight");
+
+        wp_item.innerHTML = "<span class='wp_idx'>[" + wp_i + "]</span>" +
+                            "<span>" + (wp_c === " " ? "␣" : wp_c) + "</span>";
+        wp_box.appendChild(wp_item);
+    }
+    document.getElementById("wp_lenInfo").textContent =
+        "长度 length = " + wp_str.length + "，" +
+        "charCodeAt(0) = " + wp_str.charCodeAt(0) + " (H)，" +
+        "charCodeAt(6) = " + wp_str.charCodeAt(6) + " (中文字符占 UTF-16 两单元)";
+}
+
+function wp_reset() {
+    wp_str = wp_ORIGINAL;
+    document.getElementById("wp_inputStr").value = wp_ORIGINAL;
+    wp_renderChars();
+    document.querySelectorAll(".wp_result").forEach(function (el) { el.textContent = ""; });
+}
+document.getElementById("wp_resetAll").onclick = wp_reset;
+document.getElementById("wp_inputStr").onchange = function () {
+    wp_str = this.value;
+    wp_renderChars();
+};
+wp_renderChars();
+
+/* ============================================================
+ *  方法注册表
+ * ============================================================ */
+var wp_methods = [];
+
+function wp_addMethod(group, id, name, desc, params, codeHTML, runFn) {
+    wp_methods.push({
+        wp_group: group, wp_id: id, wp_name: name, wp_desc: desc,
+        wp_params: params, wp_code: codeHTML, wp_run: runFn
+    });
+}
+
+/* ---------- ① 查询 / 提取 ---------- */
+wp_addMethod("query", "charAt", "charAt(idx)", "返回指定位置的字符",
+    [{ label: "idx", key: "i", default: "6" }],
+    '<span class="wp-kw">const</span> wp_ret = wp_str.<span class="wp-fn">charAt</span>(6);',
+    function (m) {
+        var wp_i = parseInt(m.i, 10);
+        var wp_ret = wp_str.charAt(wp_i);
+        wp_renderChars([wp_i], "wp_highlight");
+        return { wp_ret: wp_ret, wp_hint: "位置 [" + wp_i + "]" };
+    });
+
+wp_addMethod("query", "charCodeAt", "charCodeAt(idx)", "返回字符的 UTF-16 码点",
+    [{ label: "idx", key: "i", default: "6" }],
+    '<span class="wp-kw">const</span> wp_ret = wp_str.<span class="wp-fn">charCodeAt</span>(6);',
+    function (m) {
+        var wp_i = parseInt(m.i, 10);
+        var wp_ret = wp_str.charCodeAt(wp_i);
+        wp_renderChars([wp_i], "wp_highlight");
+        return { wp_ret: wp_ret, wp_hint: wp_str.charAt(wp_i) + " 的编码点" };
+    });
+
+wp_addMethod("query", "indexOf", "indexOf(search, fromIdx)", "返回首次出现位置，未找到返回 -1",
+    [
+        { label: "查找", key: "s", default: "魏鹏" },
+        { label: "fromIdx(可空)", key: "f", default: "" }
+    ],
+    '<span class="wp-kw">const</span> wp_ret = wp_str.<span class="wp-fn">indexOf</span>(<span class="wp-str">"魏鹏"</span>);',
+    function (m) {
+        var wp_f = m.f.trim() === "" ? undefined : parseInt(m.f, 10);
+        var wp_ret = wp_f === undefined ? wp_str.indexOf(m.s) : wp_str.indexOf(m.s, wp_f);
+        if (wp_ret >= 0) {
+            wp_renderChars([wp_ret, wp_ret + m.s.length], "wp_highlight");
+        } else {
+            wp_renderChars();
+        }
+        return { wp_ret: wp_ret, wp_hint: wp_ret >= 0 ? "起始位置 [" + wp_ret + "]" : "未找到" };
+    });
+
+wp_addMethod("query", "includes", "includes(search)", "是否包含某子串",
+    [{ label: "查找", key: "s", default: "2026" }],
+    '<span class="wp-kw">const</span> wp_ret = wp_str.<span class="wp-fn">includes</span>(<span class="wp-str">"2026"</span>);',
+    function (m) {
+        var wp_idx = wp_str.indexOf(m.s);
+        var wp_ret = wp_idx !== -1;
+        if (wp_ret) wp_renderChars([wp_idx, wp_idx + m.s.length], "wp_highlight");
+        else wp_renderChars();
+        return { wp_ret: wp_ret, wp_hint: wp_ret ? "位置 [" + wp_idx + "]" : "未找到" };
+    });
+
+wp_addMethod("query", "startsWith", "startsWith(prefix)", "是否以某子串开头",
+    [{ label: "前缀", key: "s", default: "Hello" }],
+    '<span class="wp-kw">const</span> wp_ret = wp_str.<span class="wp-fn">startsWith</span>(<span class="wp-str">"Hello"</span>);',
+    function (m) {
+        var wp_ret = wp_str.startsWith(m.s);
+        if (wp_ret) wp_renderChars([0, m.s.length], "wp_highlight");
+        else wp_renderChars();
+        return { wp_ret: wp_ret, wp_hint: wp_ret ? "前缀匹配" : "不匹配" };
+    });
+
+wp_addMethod("query", "slice", "slice(start, end)", "返回 [start, end) 切片",
+    [
+        { label: "start", key: "s", default: "0" },
+        { label: "end(可空，空=到末尾)", key: "e", default: "5" }
+    ],
+    '<span class="wp-kw">const</span> wp_ret = wp_str.<span class="wp-fn">slice</span>(0, 5);',
+    function (m) {
+        var wp_s = parseInt(m.s, 10);
+        var wp_e = m.e.trim() === "" ? wp_str.length : parseInt(m.e, 10);
+        var wp_ret = wp_str.slice(wp_s, wp_e);
+        wp_renderChars([wp_s, wp_e], "wp_slice");
+        return { wp_ret: wp_ret, wp_hint: "切片范围 [" + wp_s + "," + wp_e + ") = " + wp_ret.length + " 字符" };
+    });
+
+wp_addMethod("query", "substring", "substring(from, to)", "返回 [from, to) 子串，自动校正顺序",
+    [
+        { label: "from", key: "s", default: "5" },
+        { label: "to", key: "e", default: "10" }
+    ],
+    '<span class="wp-kw">const</span> wp_ret = wp_str.<span class="wp-fn">substring</span>(5, 10);',
+    function (m) {
+        var wp_s = parseInt(m.s, 10);
+        var wp_e = parseInt(m.e, 10);
+        var wp_ret = wp_str.substring(wp_s, wp_e);
+        var wp_lo = Math.min(wp_s, wp_e), wp_hi = Math.max(wp_s, wp_e);
+        wp_renderChars([wp_lo, wp_hi], "wp_slice");
+        return { wp_ret: wp_ret, wp_hint: "实际范围 [" + wp_lo + "," + wp_hi + ")" };
+    });
+
+/* ---------- ② 变形 / 替换 ---------- */
+wp_addMethod("mutate", "toUpperCase", "toUpperCase()", "转大写",
+    [],
+    '<span class="wp-kw">const</span> wp_ret = wp_str.<span class="wp-fn">toUpperCase</span>();',
+    function () {
+        var wp_ret = wp_str.toUpperCase();
+        wp_renderChars();
+        return { wp_ret: wp_ret, wp_hint: "原串长度 " + wp_str.length + "，原串未变" };
+    });
+
+wp_addMethod("mutate", "toLowerCase", "toLowerCase()", "转小写",
+    [],
+    '<span class="wp-kw">const</span> wp_ret = wp_str.<span class="wp-fn">toLowerCase</span>();',
+    function () {
+        var wp_ret = wp_str.toLowerCase();
+        wp_renderChars();
+        return { wp_ret: wp_ret, wp_hint: "原串未变" };
+    });
+
+wp_addMethod("mutate", "trim", "trim()", "去除两端空白",
+    [],
+    'wp_str = <span class="wp-str">"  Hello  "</span>;\n<span class="wp-kw">const</span> wp_ret = wp_str.<span class="wp-fn">trim</span>();',
+    function () {
+        // 演示：临时加空格再 trim
+        var wp_t = "  " + wp_str + "  ";
+        var wp_ret = wp_t.trim();
+        wp_renderChars();
+        return { wp_ret: wp_ret, wp_hint: "原串若为 '" + wp_t + "' → trim 后去掉两端空格，长度 " + wp_ret.length };
+    });
+
+wp_addMethod("mutate", "replace", "replace(search, repl)", "替换第一个匹配项（可用正则）",
+    [
+        { label: "查找", key: "s", default: "魏鹏" },
+        { label: "替换为", key: "r", default: "Wei Peng" }
+    ],
+    '<span class="wp-kw">const</span> wp_ret = wp_str.<span class="wp-fn">replace</span>(<span class="wp-str">"魏鹏"</span>, <span class="wp-str">"Wei Peng"</span>);',
+    function (m) {
+        var wp_ret = wp_str.replace(m.s, m.r);
+        var wp_idx = wp_str.indexOf(m.s);
+        if (wp_idx >= 0) wp_renderChars([wp_idx, wp_idx + m.s.length], "wp_highlight");
+        else wp_renderChars();
+        return { wp_ret: wp_ret, wp_hint: "替换原串中第一个 '" + m.s + "'" };
+    });
+
+wp_addMethod("mutate", "repeat", "repeat(n)", "把字符串重复 n 次拼接",
+    [{ label: "n", key: "n", default: "3" }],
+    '<span class="wp-kw">const</span> wp_ret = wp_str.<span class="wp-fn">repeat</span>(3);',
+    function (m) {
+        var wp_ret = wp_str.repeat(parseInt(m.n, 10));
+        wp_renderChars();
+        return { wp_ret: wp_ret, wp_hint: "原长 " + wp_str.length + " × " + m.n + " = " + wp_ret.length };
+    });
+
+wp_addMethod("mutate", "padStart", "padStart(len, padStr)", "在开头补填充符至目标长度",
+    [
+        { label: "目标长 len", key: "l", default: "20" },
+        { label: "填充符", key: "p", default: "*" }
+    ],
+    '<span class="wp-kw">const</span> wp_ret = wp_str.<span class="wp-fn">padStart</span>(20, <span class="wp-str">"*"</span>);',
+    function (m) {
+        var wp_ret = wp_str.padStart(parseInt(m.l, 10), m.p);
+        wp_renderChars();
+        return { wp_ret: wp_ret, wp_hint: "原长 " + wp_str.length + "，补到 " + m.l + " 字符" };
+    });
+
+/* ---------- ③ 拆分 / 拼接 ---------- */
+wp_addMethod("split", "split", "split(separator, limit)", "按分隔符拆分，返回数组",
+    [
+        { label: "分隔符", key: "s", default: " " },
+        { label: "limit(可空)", key: "l", default: "" }
+    ],
+    '<span class="wp-kw">const</span> wp_ret = wp_str.<span class="wp-fn">split</span>(<span class="wp-str">" "</span>);',
+    function (m) {
+        var wp_l = m.l.trim() === "" ? undefined : parseInt(m.l, 10);
+        var wp_ret = wp_l === undefined ? wp_str.split(m.s) : wp_str.split(m.s, wp_l);
+        wp_renderChars();
+        return { wp_ret: wp_ret, wp_hint: "拆成 " + wp_ret.length + " 项" };
+    });
+
+wp_addMethod("split", "concat", "concat(...strings)", "拼接字符串（建议用模板字符串）",
+    [{ label: "追加", key: "s", default: " 🎓" }],
+    '<span class="wp-kw">const</span> wp_ret = wp_str.<span class="wp-fn">concat</span>(<span class="wp-str">" 🎓"</span>);',
+    function (m) {
+        var wp_ret = wp_str.concat(m.s);
+        wp_renderChars();
+        return { wp_ret: wp_ret, wp_hint: "新串长度 " + wp_ret.length };
+    });
+
+/* ---------- ④ 对象 ↔ 字符串 ---------- */
+wp_addMethod("json", "JSON.stringify", "JSON.stringify(obj)", "对象 → JSON 字符串",
+    [{ label: "对象表达式", key: "obj", default: "{name:'魏鹏',score:88}" }],
+    '<span class="wp-kw">const</span> s = JSON.<span class="wp-fn">stringify</span>({name:<span class="wp-str">"魏鹏"</span>, score: 88});',
+    function (m) {
+        var wp_obj;
+        try { wp_obj = eval("(" + m.obj + ")"); }
+        catch (e) { return { wp_ret: ["表达式错误: " + e.message], wp_hint: "" }; }
+        var wp_ret = JSON.stringify(wp_obj, null, 2);
+        wp_renderChars();
+        return { wp_ret: wp_ret, wp_hint: "标准 JSON 格式字符串" };
+    });
+
+wp_addMethod("json", "JSON.parse", "JSON.parse(str)", "JSON 字符串 → 对象",
+    [{ label: "JSON 字符串", key: "s", default: '{"name":"魏鹏","score":88}' }],
+    '<span class="wp-kw">const</span> obj = JSON.<span class="wp-fn">parse</span>(<span class="wp-str">\'{"name":"魏鹏"}\'</span>);',
+    function (m) {
+        var wp_ret;
+        try { wp_ret = JSON.parse(m.s); }
+        catch (e) { return { wp_ret: ["JSON 语法错误: " + e.message], wp_hint: "" }; }
+        wp_renderChars();
+        return { wp_ret: wp_ret, wp_hint: "对象类型 " + typeof wp_ret + "，属性: " + Object.keys(wp_ret).join(", ") };
+    });
+
+wp_addMethod("json", "template literal", "`Hello, ${name}!`", "模板字符串（反引号），可内嵌表达式",
+    [
+        { label: "变量", key: "name", default: "魏鹏" },
+        { label: "数字", key: "n", default: "100" }
+    ],
+    '<span class="wp-kw">const</span> wp_ret = <span class="wp-str">`Hello, ${name}! 分数 ${n + 10}`</span>;',
+    function (m) {
+        var wp_name = m.name;
+        var wp_n = parseInt(m.n, 10);
+        var wp_ret = "Hello, " + wp_name + "! 分数 " + (wp_n + 10);
+        wp_renderChars();
+        return { wp_ret: wp_ret, wp_hint: "模板字符串自动拼接，支持任意 JS 表达式" };
+    });
+
+/* ============================================================
+ *  渲染所有方法卡片 + 绑定点击
+ * ============================================================ */
+function wp_renderMethodCard(m) {
+    var wp_div = document.createElement("div");
+    wp_div.className = "wp_method wp_" + m.wp_group;
+    var wp_paramsHTML = "";
+    for (var wp_i = 0; wp_i < m.wp_params.length; wp_i++) {
+        var wp_p = m.wp_params[wp_i];
+        wp_paramsHTML += "<span class='wp_param'>" + wp_p.label +
+            ": <input data-key='" + wp_p.key + "' value='" + wp_p.default + "'></span>";
+    }
+    wp_div.innerHTML =
+        "<h3>" + m.wp_name + "</h3>" +
+        "<p class='wp_desc'>" + m.wp_desc + "</p>" +
+        "<div class='wp_params'>" + wp_paramsHTML + "</div>" +
+        "<button class='wp_run-btn'>▶ 演示</button>" +
+        "<pre class='wp_code'>" + m.wp_code + "</pre>" +
+        "<div class='wp_result'></div>";
+
+    wp_div.querySelector(".wp_run-btn").onclick = function () {
+        var wp_args = {};
+        wp_div.querySelectorAll("input[data-key]").forEach(function (inp) {
+            wp_args[inp.dataset.key] = inp.value;
+        });
+        var wp_res = m.wp_run(wp_args);
+        var wp_result = wp_div.querySelector(".wp_result");
+        var wp_show = wp_res.wp_ret;
+        if (Array.isArray(wp_show)) wp_show = "[" + wp_show.join(", ") + "]";
+        else if (typeof wp_show === "object" && wp_show !== null) wp_show = JSON.stringify(wp_show, null, 2);
+        else if (wp_show === undefined) wp_show = "undefined";
+        else if (typeof wp_show === "boolean") wp_show = wp_show;
+        else wp_show = String(wp_show);
+        wp_result.innerHTML = "<span class='wp-ret-label'>返回值:</span><span class='wp-ret-val'>" + wp_show + "</span>" +
+            (wp_res.wp_hint ? "\n" + wp_res.wp_hint : "");
+    };
+    return wp_div;
+}
+
+var wp_groupMap = {
+    query: document.getElementById("wp_queryGroup"),
+    mutate: document.getElementById("wp_mutateGroup"),
+    split: document.getElementById("wp_splitGroup"),
+    json:  document.getElementById("wp_jsonGroup")
+};
+wp_methods.forEach(function (m) { wp_groupMap[m.wp_group].appendChild(wp_renderMethodCard(m)); });
+</script>
+</body>
+</html>
