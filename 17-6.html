@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 姓名：魏鹏 日期：2026-11-02 功能名称：Promise + async/await 异步流程演示 —— 包饺子 -->
+<!-- 姓名：魏鹏 日期：2026-11-02 功能名称：Promise + async/await 异步流程演示 —— 包饺子（Promise.race + Promise.all） -->
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -28,7 +28,6 @@
             padding-left: 10px; border-left: 4px solid #dc2626;
         }
 
-        /* 节点通用 */
         .wp_node-row {
             display: flex; justify-content: center; align-items: center; gap: 14px;
             flex-wrap: wrap; margin-bottom: 6px;
@@ -37,14 +36,12 @@
             padding: 14px 18px; border-radius: 10px; background: #f1f5f9;
             border: 2px solid #cbd5e1; color: #94a3b8;
             font-size: 14px; font-weight: 600; text-align: center;
-            min-width: 110px; position: relative;
+            min-width: 120px; position: relative;
             transition: all .25s;
         }
         .wp_node .wp_node-name { font-size: 14px; }
         .wp_node .wp_node-time { font-size: 11px; margin-top: 4px; opacity: .7; font-family: Consolas, monospace; }
-        .wp_node.wp_waiting {
-            background: #f1f5f9; border-color: #cbd5e1; color: #94a3b8;
-        }
+        .wp_node.wp_waiting { background: #f1f5f9; border-color: #cbd5e1; color: #94a3b8; }
         .wp_node.wp_running {
             background: linear-gradient(135deg, #fef3c7, #fde68a);
             border-color: #f59e0b; color: #92400e;
@@ -65,8 +62,11 @@
             display: flex; align-items: center; justify-content: center;
             font-weight: 900;
         }
+        .wp_node.wp_loser {
+            text-decoration: line-through; opacity: .5;
+            background: #f1f5f9; border-color: #cbd5e1; color: #94a3b8;
+        }
 
-        /* 连线 */
         .wp_arrow {
             font-size: 24px; color: #cbd5e1; font-weight: 900;
             margin: 0 4px;
@@ -74,7 +74,7 @@
         .wp_arrow.wp_active { color: #dc2626; animation: wp_bounce .5s ease-in-out infinite alternate; }
         @keyframes wp_bounce { from { transform: translateY(0); } to { transform: translateY(4px); } }
 
-        /* 并发组（branch） */
+        /* branch 通用 */
         .wp_branch {
             display: flex; gap: 14px; align-items: stretch; justify-content: center;
             margin: 6px 0; position: relative;
@@ -83,15 +83,21 @@
             content: ""; position: absolute; top: 22px;
             height: 2px; background: #cbd5e1;
         }
-        .wp_branch::before { left: 140px; right: 50%; }
-        .wp_branch::after  { right: 140px; left: 50%; }
         .wp_branch.wp_active-branch::before,
         .wp_branch.wp_active-branch::after { background: #dc2626; }
+        /* race：先汇合后分叉，先到先过 */
+        .wp_branch.wp_race::before { left: 150px; right: 50%; }
+        .wp_branch.wp_race::after  { right: 150px; left: 50%; }
+        /* all：先分叉后汇合，两者都要 */
+        .wp_branch.wp_all::before { left: 140px; right: 50%; }
+        .wp_branch.wp_all::after  { right: 140px; left: 50%; }
 
         .wp_parallel-label {
-            text-align: center; font-size: 12px; color: #dc2626; font-weight: 700;
+            text-align: center; font-size: 12px; font-weight: 700;
             margin: 2px 0 0; font-family: Consolas, monospace;
         }
+        .wp_parallel-label.wp_race-label { color: #f59e0b; }
+        .wp_parallel-label.wp_all-label  { color: #8b5cf6; }
 
         /* ===== 控制面板 ===== */
         .wp_ctrl {
@@ -103,13 +109,10 @@
             padding: 8px 20px; border-radius: 8px; border: none; cursor: pointer;
             font-size: 13px; font-weight: 700; font-family: inherit;
         }
-        .wp_btn.wp_red   { background: #dc2626; color: #fff; }
+        .wp_btn.wp_red    { background: #dc2626; color: #fff; }
         .wp_btn.wp_red:hover { background: #b91c1c; }
-        .wp_btn.wp_gray  { background: #64748b; color: #fff; }
+        .wp_btn.wp_gray   { background: #64748b; color: #fff; }
         .wp_btn.wp_gray:hover { background: #475569; }
-        .wp_btn.wp_orange { background: #f59e0b; color: #fff; }
-        .wp_btn.wp_orange:hover { background: #d97706; }
-        .wp_btn:disabled { opacity: .5; cursor: not-allowed; }
 
         /* ===== 统计 ===== */
         .wp_stats {
@@ -125,9 +128,7 @@
             background: #fff; border-radius: 12px; padding: 16px 20px;
             box-shadow: 0 3px 12px rgba(15, 23, 42, .06); margin-bottom: 16px;
         }
-        .wp_log-title {
-            font-size: 14px; color: #1e1b4b; margin-bottom: 10px; font-weight: 700;
-        }
+        .wp_log-title { font-size: 14px; color: #1e1b4b; margin-bottom: 10px; font-weight: 700; }
         .wp_log {
             background: #0f172a; color: #e2e8f0; border-radius: 8px;
             padding: 12px 14px; font-size: 12px; font-family: Consolas, monospace;
@@ -141,20 +142,20 @@
         }
         .wp-log-tag.wp-start { background: #f59e0b; color: #fff; }
         .wp-log-tag.wp-end   { background: #22c55e; color: #fff; }
+        .wp-log-tag.wp-race  { background: #ec4899; color: #fff; }
         .wp-log-tag.wp-par   { background: #8b5cf6; color: #fff; }
+        .wp-log-tag.wp-lose  { background: #64748b; color: #fff; }
 
-        /* ===== 代码展示 ===== */
+        /* ===== 代码 ===== */
         .wp_code-section {
             background: #fff; border-radius: 12px; padding: 16px 20px;
             box-shadow: 0 3px 12px rgba(15, 23, 42, .06);
         }
-        .wp_code-title {
-            font-size: 14px; color: #1e1b4b; margin-bottom: 10px; font-weight: 700;
-        }
+        .wp_code-title { font-size: 14px; color: #1e1b4b; margin-bottom: 10px; font-weight: 700; }
         .wp_code-block {
             background: #1e293b; color: #e2e8f0; border-radius: 8px;
             padding: 14px 16px; font-size: 12px; font-family: Consolas, monospace;
-            line-height: 1.8; overflow: auto; max-height: 300px;
+            line-height: 1.8; overflow: auto; max-height: 360px;
         }
         .wp_code-block .cmt { color: #94a3b8; }
         .wp_code-block .kw  { color: #f472b6; }
@@ -167,24 +168,29 @@
 <body>
 <div class="wp_container">
     <div class="wp_header">
-        <h1 class="wp_title">包饺子异步流程 · <span class="wp_name">魏鹏</span></h1>
-        <p class="wp_subtitle">Promise + async/await 演示 —— 串行步骤 + Promise.all 并发步骤</p>
+        <h1 class="wp_title">包饺子异步流程 v2 · <span class="wp_name">魏鹏</span></h1>
+        <p class="wp_subtitle">Promise.race（先到先过）+ Promise.all（全部都要）+ async/await</p>
     </div>
 
     <!-- ===== 流程图 ===== -->
     <div class="wp_flow">
-        <div class="wp_flow-title">🍜 包饺子流程图（点击▶ 开始）</div>
+        <div class="wp_flow-title">🍜 包饺子流程图（点击 ▶ 开始）</div>
 
-        <!-- 1) 买原料 -->
-        <div class="wp_node-row">
-            <div class="wp_node" id="wp_n1">
-                <div class="wp_node-name">① 买原料</div>
-                <div class="wp_node-time">setTimeout 6s</div>
+        <!-- ① Promise.race：线上 5s + 线下 6s → 取先到 5s -->
+        <div class="wp_parallel-label wp_race-label">Promise.race（先完成的即可，谁快用谁）</div>
+        <div class="wp_branch wp_race" id="wp_branchRace">
+            <div class="wp_node" id="wp_n1_online">
+                <div class="wp_node-name">①-1 线上买原料</div>
+                <div class="wp_node-time">5s</div>
+            </div>
+            <div class="wp_node" id="wp_n1_offline">
+                <div class="wp_node-name">①-2 线下买原料</div>
+                <div class="wp_node-time">6s</div>
             </div>
         </div>
-        <div class="wp_node-row"><span class="wp_arrow" id="wp_a1">↓</span></div>
+        <div class="wp_node-row"><span class="wp_arrow" id="wp_a1">↓ 取先到的（5s）</span></div>
 
-        <!-- 2) 取原料 -->
+        <!-- ② 取原料 1s -->
         <div class="wp_node-row">
             <div class="wp_node" id="wp_n2">
                 <div class="wp_node-name">② 取原料</div>
@@ -193,34 +199,43 @@
         </div>
         <div class="wp_node-row"><span class="wp_arrow" id="wp_a2">↓</span></div>
 
-        <!-- 3+4) 并发：和面 + 和馅 -->
-        <div class="wp_parallel-label">Promise.all（同时开始）</div>
-        <div class="wp_branch" id="wp_branch">
+        <!-- ③④ Promise.all：和面 3s + 和馅 2s → 取慢者 3s -->
+        <div class="wp_parallel-label wp_all-label">Promise.all（同时开始，两者都要）</div>
+        <div class="wp_branch wp_all" id="wp_branchAll">
             <div class="wp_node" id="wp_n3">
                 <div class="wp_node-name">③ 和面</div>
-                <div class="wp_node-time">setTimeout 3s</div>
+                <div class="wp_node-time">3s</div>
             </div>
             <div class="wp_node" id="wp_n4">
                 <div class="wp_node-name">④ 和馅</div>
-                <div class="wp_node-time">setTimeout 2s</div>
+                <div class="wp_node-time">2s</div>
             </div>
         </div>
         <div class="wp_node-row"><span class="wp_arrow" id="wp_a3">↓ (取慢者 3s)</span></div>
 
-        <!-- 5) 包饺子 -->
+        <!-- ⑤ 包饺子 4s -->
         <div class="wp_node-row">
             <div class="wp_node" id="wp_n5">
                 <div class="wp_node-name">⑤ 包饺子</div>
-                <div class="wp_node-time">setTimeout 4s</div>
+                <div class="wp_node-time">4s</div>
             </div>
         </div>
         <div class="wp_node-row"><span class="wp_arrow" id="wp_a4">↓</span></div>
 
-        <!-- 6) 吃饺子 -->
+        <!-- ⑥ 煮饺子 3s -->
         <div class="wp_node-row">
             <div class="wp_node" id="wp_n6">
-                <div class="wp_node-name">⑥ 吃饺子 🥟</div>
-                <div class="wp_node-time">setTimeout 2s</div>
+                <div class="wp_node-name">⑥ 煮饺子 �</div>
+                <div class="wp_node-time">3s</div>
+            </div>
+        </div>
+        <div class="wp_node-row"><span class="wp_arrow" id="wp_a5">↓</span></div>
+
+        <!-- ⑦ 吃饺子 2s -->
+        <div class="wp_node-row">
+            <div class="wp_node" id="wp_n7">
+                <div class="wp_node-name">⑦ 吃饺子 🥟</div>
+                <div class="wp_node-time">2s</div>
             </div>
         </div>
     </div>
@@ -232,8 +247,8 @@
     </div>
     <div class="wp_stats">
         <span>⏱ 总耗时: <strong id="wpElapsed">0</strong> ms</span>
-        <span>📦 预计耗时: <strong>6000</strong> ms (串行总 18s vs 并发后 6+1+3+4+2 = <strong class="wp_elapsed">16s</strong>)</span>
-        <span id="wpParallelTip" style="color:#8b5cf6;font-weight:600;">💡 和面和馅并发，省 2s</span>
+        <span>📦 串行总: <strong>50000</strong> ms</span>
+        <span>⚡ 并发后: <span class="wp_elapsed">race=5s + 1s + all=3s + 4s + 3s + 2s = <strong class="wp_elapsed">18s</strong></span></span>
     </div>
 
     <!-- ===== 日志 ===== -->
@@ -244,55 +259,55 @@
 
     <!-- ===== 代码 ===== -->
     <div class="wp_code-section">
-        <div class="wp_code-title">💻 async/await + Promise.all 源码（点击▶ 同步跑）</div>
-        <pre class="wp_code-block"><span class="cmt">// 用 Promise 包装 setTimeout，让它支持 await</span>
+        <div class="wp_code-title">💻 源码（点击 ▶ 同步跑）</div>
+<pre class="wp_code-block"><span class="cmt">// Promise 化 setTimeout</span>
 <span class="kw">function</span> <span class="fn">delay</span>(ms, name) {
     <span class="kw">return new</span> <span class="fn">Promise</span>(resolve => {
         <span class="kw">setTimeout</span>(() => resolve(name), ms);
     });
 }
 
-<span class="cmt">// 主流程：async 函数 + await 串行 + Promise.all 并发</span>
 <span class="kw">async function</span> <span class="fn">makeDumplings</span>() {
-    <span class="kw">let</span> t0 = <span class="kw">performance</span>.now();
+    <span class="cmt">// ① Promise.race：线上 + 线下，谁先完用谁</span>
+    <span class="kw">let</span> result = <span class="kw">await</span> <span class="fn">Promise</span>.<span class="fn">race</span>([
+        <span class="fn">delay</span>(<span class="num">5000</span>, <span class="str">"线上买原料"</span>),
+        <span class="fn">delay</span>(<span class="num">6000</span>, <span class="str">"线下买原料"</span>)
+    ]);
+    <span class="fn">console</span>.log(<span class="str">"胜者是："</span> + result);
 
-    <span class="cmt">// ① 串行：买原料 6s</span>
-    <span class="kw">await</span> <span class="fn">delay</span>(<span class="num">6000</span>, <span class="str">"买原料"</span>);
-
-    <span class="cmt">// ② 串行：取原料 1s</span>
+    <span class="cmt">// ② 取原料 1s（串行）</span>
     <span class="kw">await</span> <span class="fn">delay</span>(<span class="num">1000</span>, <span class="str">"取原料"</span>);
 
-    <span class="cmt">// ③④ 并发：和面 3s + 和馅 2s —— 同时开始，取慢者 3s</span>
+    <span class="cmt">// ③④ Promise.all：和面 + 和馅，都要完</span>
     <span class="kw">await</span> <span class="fn">Promise</span>.<span class="fn">all</span>([
         <span class="fn">delay</span>(<span class="num">3000</span>, <span class="str">"和面"</span>),
         <span class="fn">delay</span>(<span class="num">2000</span>, <span class="str">"和馅"</span>)
     ]);
 
-    <span class="cmt">// ⑤ 串行：包饺子 4s</span>
+    <span class="cmt">// ⑤ 包饺子 4s（串行）</span>
     <span class="kw">await</span> <span class="fn">delay</span>(<span class="num">4000</span>, <span class="str">"包饺子"</span>);
 
-    <span class="cmt">// ⑥ 串行：吃饺子 2s</span>
-    <span class="kw">await</span> <span class="fn">delay</span>(<span class="num">2000</span>, <span class="str">"吃饺子"</span>);
+    <span class="cmt">// ⑥ 煮饺子 3s（串行）— 新增步骤</span>
+    <span class="kw">await</span> <span class="fn">delay</span>(<span class="num">3000</span>, <span class="str">"煮饺子"</span>);
 
-    <span class="kw">return</span> ((performance.now() - t0) | <span class="num">0</span>);
+    <span class="cmt">// ⑦ 吃饺子 2s（串行）</span>
+    <span class="kw">await</span> <span class="fn">delay</span>(<span class="num">2000</span>, <span class="str">"吃饺子"</span>);
 }
 
-<span class="cmt">// ⚡ 对比：如果全部串行（没有 Promise.all）</span>
-<span class="cmt">// 总耗时 = 6 + 1 + 3 + 2 + 4 + 2 = <span class="num">18</span>s</span>
-<span class="cmt">// 用 Promise.all 并发和面和馅后</span>
-<span class="cmt">// 总耗时 = 6 + 1 + max(3,2) + 4 + 2 = <span class="num">16</span>s —— 省了 2s</span></pre>
+<span class="cmt">// ⚡ 两种 Promise 静态方法对比：</span>
+<span class="cmt">// Promise.race  —— 竞速，第一个完成/失败就返回（取最快者）</span>
+<span class="cmt">// Promise.all   —— 结伴，全部完成才返回（取最慢者），一个失败全失败</span></pre>
     </div>
 </div>
 
 <script>
 /* ============================================================
- *  17-6.html：包饺子异步流程
- *  - Promise 包装 setTimeout
- *  - async/await 串行
- *  - Promise.all 并发
+ *  17-6.html：包饺子 v2 —— Promise.race + Promise.all
+ *  - race：线上 5s vs 线下 6s → 5s 胜，6s 那个变成"失败者"
+ *  - all：和面 3s + 和馅 2s → 3s（取慢者）
  * ============================================================ */
 
-/* ===== Promise 化的 setTimeout ===== */
+/* Promise 化 setTimeout */
 function wp_delay(ms, name) {
     return new Promise(function (resolve) {
         setTimeout(function () { resolve(name); }, ms);
@@ -313,108 +328,120 @@ function wp_log(tag, msg) {
 }
 function wp_clearLog() { document.getElementById("wpLog").innerHTML = ""; }
 
-/* ===== 节点状态切换 ===== */
-var wp_nodes = ["wp_n1","wp_n2","wp_n3","wp_n4","wp_n5","wp_n6"];
+/* ===== 节点状态 ===== */
+var wp_waitingNodes = ["wp_n1_online","wp_n1_offline","wp_n2","wp_n3","wp_n4","wp_n5","wp_n6","wp_n7"];
 function wp_resetNodes() {
-    for (var wp_i = 0; wp_i < wp_nodes.length; wp_i++) {
-        var wp_el = document.getElementById(wp_nodes[wp_i]);
-        wp_el.className = "wp_node wp_waiting";
+    for (var wp_i = 0; wp_i < wp_waitingNodes.length; wp_i++) {
+        document.getElementById(wp_waitingNodes[wp_i]).className = "wp_node wp_waiting";
     }
-    document.getElementById("wp_branch").classList.remove("wp_active-branch");
-    var wp_arrows = ["wp_a1","wp_a2","wp_a3","wp_a4"];
+    document.getElementById("wp_branchRace").classList.remove("wp_active-branch");
+    document.getElementById("wp_branchAll").classList.remove("wp_active-branch");
+    var wp_arrows = ["wp_a1","wp_a2","wp_a3","wp_a4","wp_a5"];
     for (var wp_j = 0; wp_j < wp_arrows.length; wp_j++) {
         document.getElementById(wp_arrows[wp_j]).classList.remove("wp_active");
     }
 }
-function wp_setRunning(id)     { document.getElementById(id).className = "wp_node wp_running"; }
-function wp_setDone(id)       { document.getElementById(id).className = "wp_node wp_done"; }
-function wp_setWaiting(id)    { document.getElementById(id).className = "wp_node wp_waiting"; }
+function wp_setRunning(id)  { document.getElementById(id).className = "wp_node wp_running"; }
+function wp_setDone(id)    { document.getElementById(id).className = "wp_node wp_done"; }
+function wp_setLoser(id)   { document.getElementById(id).className = "wp_node wp_loser"; }
 
 /* ===== async 主流程 ===== */
 async function wp_makeDumplings() {
     var wp_btn = document.getElementById("wp_start");
     wp_btn.disabled = true;
-    document.getElementById("wp_reset").disabled = false;
-
-    // 重置 + 启动计时
-    wp_resetNodes();
-    wp_clearLog();
+    wp_resetNodes(); wp_clearLog();
     wp_logStartTs = performance.now();
+    var wp_t0 = performance.now();
 
-    var wp_t_total = performance.now();
+    // ========= ① Promise.race：线上 5s vs 线下 6s =========
+    wp_setRunning("wp_n1_online"); wp_setRunning("wp_n1_offline");
+    document.getElementById("wp_branchRace").classList.add("wp_active-branch");
+    wp_log("race", "① Promise.race 同时启动：线上(5000ms) vs 线下(6000ms)");
 
-    // ========= ① 买原料 6s =========
+    var wp_pOnline  = wp_delay(5000, "线上").then(function (name) {
+        wp_setDone("wp_n1_online");
+        wp_log("race", "①-1 " + name + " 先完成 ✓");
+        return name;
+    });
+    var wp_pOffline = wp_delay(6000, "线下").then(function (name) {
+        // 到这里时 race 已经让另一个胜出了
+        wp_setLoser("wp_n1_offline");
+        wp_log("lose", "①-2 " + name + " 晚了 1000ms —— 失败者");
+        return name;
+    });
+
+    var wp_winner = await Promise.race([wp_pOnline, wp_pOffline]);
+    wp_log("race", "→ race 胜者是 " + wp_winner + "！节省了 1s");
+
+    document.getElementById("wp_branchRace").classList.remove("wp_active-branch");
     document.getElementById("wp_a1").classList.add("wp_active");
-    wp_setRunning("wp_n1");
-    wp_log("start", "① 开始买原料 (6000 ms)");
-    await wp_delay(6000, "买原料");
-    wp_setDone("wp_n1");
-    wp_log("end",   "① 买原料 完成 ✓");
 
     // ========= ② 取原料 1s =========
-    document.getElementById("wp_a1").classList.remove("wp_active");
-    document.getElementById("wp_a2").classList.add("wp_active");
     wp_setRunning("wp_n2");
-    wp_log("start", "② 开始取原料 (1000 ms)");
+    wp_log("start", "② 开始取原料 (1000ms)");
     await wp_delay(1000, "取原料");
     wp_setDone("wp_n2");
     wp_log("end",   "② 取原料 完成 ✓");
+    document.getElementById("wp_a1").classList.remove("wp_active");
+    document.getElementById("wp_a2").classList.add("wp_active");
 
-    // ========= ③④ 并发：和面 3s + 和馅 2s =========
+    // ========= ③④ Promise.all：和面 3s + 和馅 2s =========
     document.getElementById("wp_a2").classList.remove("wp_active");
-    document.getElementById("wp_branch").classList.add("wp_active-branch");
+    document.getElementById("wp_branchAll").classList.add("wp_active-branch");
     wp_setRunning("wp_n3"); wp_setRunning("wp_n4");
     wp_log("par",   "③④ Promise.all 同时启动：和面(3000ms) + 和馅(2000ms)");
 
-    // 分别用 Promise 捕获各自结束时机（这样能单独标记 done）
-    var wp_p3 = wp_delay(3000, "和面").then(function (name) {
-        wp_setDone("wp_n3");
-        wp_log("end",   "③ 和面 完成 ✓");
+    var wp_p3 = wp_delay(3000, "和面").then(function () {
+        wp_setDone("wp_n3"); wp_log("end", "③ 和面 完成 ✓");
     });
-    var wp_p4 = wp_delay(2000, "和馅").then(function (name) {
-        wp_setDone("wp_n4");
-        wp_log("end",   "④ 和馅 完成 ✓ (比和面早 1000ms)");
+    var wp_p4 = wp_delay(2000, "和馅").then(function () {
+        wp_setDone("wp_n4"); wp_log("end", "④ 和馅 完成 ✓ (比和面早 1000ms)");
     });
     await Promise.all([wp_p3, wp_p4]);
-    wp_log("par",   "③④ 两个都完成了 → 进入下一阶段");
+    wp_log("par",   "→ 两个都完成了 → 进入下一阶段");
 
-    document.getElementById("wp_branch").classList.remove("wp_active-branch");
+    document.getElementById("wp_branchAll").classList.remove("wp_active-branch");
     document.getElementById("wp_a3").classList.add("wp_active");
 
     // ========= ⑤ 包饺子 4s =========
     wp_setRunning("wp_n5");
-    wp_log("start", "⑤ 开始包饺子 (4000 ms)");
+    wp_log("start", "⑤ 开始包饺子 (4000ms)");
     await wp_delay(4000, "包饺子");
     wp_setDone("wp_n5");
     wp_log("end",   "⑤ 包饺子 完成 ✓");
-
-    // ========= ⑥ 吃饺子 2s =========
     document.getElementById("wp_a3").classList.remove("wp_active");
     document.getElementById("wp_a4").classList.add("wp_active");
+
+    // ========= ⑥ 煮饺子 3s =========
     wp_setRunning("wp_n6");
-    wp_log("start", "⑥ 开始吃饺子 (2000 ms) 🥟");
-    await wp_delay(2000, "吃饺子");
+    wp_log("start", "⑥ 开始煮饺子 (3000ms) 🫕");
+    await wp_delay(3000, "煮饺子");
     wp_setDone("wp_n6");
-    wp_log("end",   "⑥ 吃饺子 完成 ✓ —— 包饺子之旅结束！");
-
+    wp_log("end",   "⑥ 煮饺子 完成 ✓");
     document.getElementById("wp_a4").classList.remove("wp_active");
+    document.getElementById("wp_a5").classList.add("wp_active");
 
-    var wp_totalMs = ((performance.now() - wp_t_total) | 0);
-    document.getElementById("wpElapsed").textContent = wp_totalMs;
-    wp_log("end", "🎉 全部结束！实际总耗时 = " + wp_totalMs + " ms");
+    // ========= ⑦ 吃饺子 2s =========
+    wp_setRunning("wp_n7");
+    wp_log("start", "⑦ 开始吃饺子 (2000ms) 🥟");
+    await wp_delay(2000, "吃饺子");
+    wp_setDone("wp_n7");
+    wp_log("end",   "⑦ 吃饺子 完成 ✓ —— 全部流程结束！");
+    document.getElementById("wp_a5").classList.remove("wp_active");
 
+    var wp_total = ((performance.now() - wp_t0) | 0);
+    document.getElementById("wpElapsed").textContent = wp_total;
+    wp_log("end", "🎉 实际总耗时 = " + wp_total + " ms (理论 18000ms)");
     wp_btn.disabled = false;
 }
 
 /* ===== 绑定 ===== */
 document.getElementById("wp_start").onclick = wp_makeDumplings;
 document.getElementById("wp_reset").onclick = function () {
-    wp_resetNodes();
-    wp_clearLog();
+    wp_resetNodes(); wp_clearLog();
     document.getElementById("wpElapsed").textContent = "0";
     document.getElementById("wp_start").disabled = false;
 };
-// 初始状态：全灰
 wp_resetNodes();
 </script>
 </body>
