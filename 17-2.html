@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<!-- 姓名：魏鹏 日期：2026-11-02 功能名称：fetch 跨域获取 posts 接口数据并展示（帖子列表） -->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>17-2 fetch posts · 魏鹏</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #faf5ff 0%, #eff6ff 100%);
+            min-height: 100vh; padding: 24px 14px 80px;
+        }
+        .wp_container { max-width: 1080px; margin: 0 auto; }
+        .wp_header { text-align: center; margin-bottom: 18px; }
+        .wp_title { font-size: 28px; color: #1e1b4b; margin-bottom: 4px; }
+        .wp_title .wp_name { color: #7c3aed; font-weight: 700; }
+        .wp_subtitle { color: #64748b; font-size: 14px; }
+
+        /* ===== 控制条 ===== */
+        .wp_ctrl {
+            background: #fff; border-radius: 12px; padding: 16px 20px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, .06);
+            margin-bottom: 16px; display: flex; flex-wrap: wrap; gap: 10px;
+            align-items: center;
+        }
+        .wp_api-label { font-size: 13px; color: #475569; font-weight: 500; white-space: nowrap; }
+        .wp_api-input {
+            flex: 1; min-width: 260px;
+            padding: 9px 14px; font-size: 13px; font-family: Consolas, monospace;
+            border: 2px solid #e2e8f0; border-radius: 8px;
+        }
+        .wp_api-input:focus { outline: none; border-color: #7c3aed; }
+        .wp_btn {
+            background: #7c3aed; color: #fff; border: none;
+            padding: 9px 20px; border-radius: 8px; font-size: 13px; cursor: pointer;
+            font-family: inherit; font-weight: 600; white-space: nowrap;
+        }
+        .wp_btn:hover { background: #6d28d9; }
+        .wp_btn.wp_gray { background: #64748b; }
+        .wp_btn.wp_gray:hover { background: #475569; }
+        .wp_btn.wp_loading { opacity: .6; cursor: progress; }
+        .wp_filter {
+            padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 8px;
+            font-size: 13px; font-family: inherit; background: #fff;
+        }
+
+        /* 状态条 */
+        .wp_status {
+            width: 100%; padding: 10px 14px; border-radius: 8px;
+            font-size: 12px; font-family: Consolas, monospace;
+            line-height: 1.7; display: none;
+        }
+        .wp_status.wp_loading-s { display: block; background: #eff6ff; color: #1d4ed8; }
+        .wp_status.wp_ok-s    { display: block; background: #f0fdf4; color: #15803d; }
+        .wp_status.wp_err-s   { display: block; background: #fef2f2; color: #b91c1c; }
+
+        /* ===== 帖子列表 ===== */
+        .wp_posts {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 14px;
+        }
+        .wp_post {
+            background: #fff; border-radius: 14px; padding: 18px;
+            box-shadow: 0 3px 14px rgba(15, 23, 42, .06);
+            cursor: pointer; transition: transform .15s, box-shadow .15s;
+            position: relative; display: flex; flex-direction: column; gap: 8px;
+        }
+        .wp_post:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(124, 58, 237, .18);
+        }
+        .wp_post.wp_selected {
+            border: 2px solid #7c3aed;
+            padding: 16px;
+        }
+        .wp_post-head {
+            display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+        }
+        .wp_post-id {
+            width: 32px; height: 32px; border-radius: 8px;
+            background: linear-gradient(135deg, #c084fc, #7c3aed);
+            color: #fff; font-size: 14px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            font-family: Consolas, monospace;
+        }
+        .wp_user-badge {
+            padding: 3px 10px; border-radius: 12px;
+            font-size: 12px; font-weight: 600;
+            background: #f1f5f9; color: #475569;
+        }
+        .wp_user-badge.wp_u1  { background:#fee2e2; color:#b91c1c; }
+        .wp_user-badge.wp_u2  { background:#dbeafe; color:#1d4ed8; }
+        .wp_user-badge.wp_u3  { background:#dcfce7; color:#15803d; }
+        .wp_user-badge.wp_u4  { background:#fef3c7; color:#a16207; }
+        .wp_user-badge.wp_u5  { background:#fae8ff; color:#a21caf; }
+        .wp_user-badge.wp_u6  { background:#ffedd5; color:#c2410c; }
+        .wp_user-badge.wp_u7  { background:#e0e7ff; color:#3730a3; }
+        .wp_user-badge.wp_u8  { background:#ccfbf1; color:#0f766e; }
+        .wp_user-badge.wp_u9  { background:#fce7f3; color:#be185d; }
+        .wp_user-badge.wp_u10 { background:#e5e7eb; color:#374151; }
+
+        .wp_post-title {
+            font-size: 16px; font-weight: 700; color: #0f172a;
+            line-height: 1.4; text-transform: capitalize;
+        }
+        .wp_post-body {
+            font-size: 13px; color: #64748b; line-height: 1.7;
+            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .wp_post-footer {
+            margin-top: auto; display: flex; justify-content: space-between;
+            font-size: 11px; color: #94a3b8; font-family: Consolas, monospace;
+        }
+
+        /* ===== 详情 ===== */
+        .wp_detail {
+            background: #fff; border-radius: 14px; padding: 22px;
+            box-shadow: 0 4px 18px rgba(15, 23, 42, .06);
+            margin-bottom: 16px; display: none;
+        }
+        .wp_detail.wp_show { display: block; }
+        .wp_detail h3 {
+            font-size: 20px; color: #1e1b4b; margin-bottom: 6px;
+        }
+        .wp_detail-meta {
+            font-size: 12px; color: #64748b; margin-bottom: 14px;
+            font-family: Consolas, monospace;
+        }
+        .wp_detail-body {
+            background: #fafafa; border-radius: 8px; padding: 16px;
+            font-size: 14px; color: #334155; line-height: 1.9;
+            white-space: pre-wrap;
+        }
+        .wp_detail-raw {
+            margin-top: 14px; background: #0f172a; color: #e2e8f0;
+            border-radius: 8px; padding: 12px; font-size: 12px;
+            font-family: Consolas, monospace; line-height: 1.7;
+            max-height: 200px; overflow: auto;
+        }
+        .wp_close-detail {
+            float: right; cursor: pointer; color: #64748b;
+            font-size: 14px; padding: 4px 8px; border-radius: 6px;
+            font-family: inherit; border: 1px solid #e2e8f0; background: #fff;
+        }
+        .wp_close-detail:hover { background: #f1f5f9; }
+
+        /* ===== 空态 ===== */
+        .wp_empty {
+            text-align: center; padding: 60px 20px;
+            color: #94a3b8; font-size: 14px; background: #fff;
+            border-radius: 14px; box-shadow: 0 4px 12px rgba(15,23,42,.06);
+        }
+        .wp-empty-icon { font-size: 48px; margin-bottom: 12px; }
+
+        /* ===== 统计条 ===== */
+        .wp_stats {
+            background: #fff; border-radius: 10px; padding: 12px 18px;
+            margin-bottom: 14px; display: flex; flex-wrap: wrap; gap: 14px;
+            font-size: 13px; color: #475569; box-shadow: 0 2px 8px rgba(15,23,42,.05);
+        }
+        .wp_stats strong { color: #7c3aed; font-size: 15px; }
+    </style>
+</head>
+<body>
+<div class="wp_container">
+    <div class="wp_header">
+        <h1 class="wp_title">fetch 跨域接口演示 · <span class="wp_name">魏鹏</span></h1>
+        <p class="wp_subtitle">使用原生 fetch 获取 jsonplaceholder /posts（100 条帖子）并渲染，支持按 userId 筛选</p>
+    </div>
+
+    <!-- 控制条 -->
+    <div class="wp_ctrl">
+        <span class="wp_api-label">接口地址:</span>
+        <input type="text" class="wp_api-input" id="wp_apiUrl"
+               value="https://jsonplaceholder.typicode.com/posts">
+        <button class="wp_btn" id="wp_btnFetch">▶ 获取数据</button>
+        <button class="wp_btn wp_gray" id="wp_btnClear">🗑 清空</button>
+        <select class="wp_filter" id="wp_filterUser">
+            <option value="">👤 全部用户</option>
+        </select>
+        <div class="wp_status" id="wp_status"></div>
+    </div>
+
+    <!-- 统计条 -->
+    <div class="wp_stats" id="wpStats" style="display:none;">
+        总帖子 <strong id="wpTotal">0</strong> 条 ·
+        涉及用户 <strong id="wpUsers">0</strong> 个 ·
+        当前筛选 <strong id="wpShown">0</strong> 条
+    </div>
+
+    <!-- 详情面板 -->
+    <div class="wp_detail" id="wp_detail">
+        <button class="wp_close-detail" id="wp_closeDetail">✕ 关闭</button>
+        <h3 id="wp_detailTitle">帖子标题</h3>
+        <div class="wp_detail-meta" id="wp_detailMeta"></div>
+        <div class="wp_detail-body" id="wp_detailBody"></div>
+        <div class="wp_detail-raw" id="wp_detailRaw"></div>
+    </div>
+
+    <!-- 列表 -->
+    <div id="wpPostsArea"></div>
+</div>
+
+<script>
+/* ============================================================
+ *  fetch + 渲染（单一字段映射 + 事件委托）
+ * ============================================================ */
+var wp_posts = [];            // 全部帖子
+var wp_selectedIdx = -1;      // 选中卡片索引
+var wp_currentFilter = "";    // 当前筛选 userId
+
+/* ---- normalize ---- */
+function wp_normalizePost(raw) {
+    return {
+        userId: raw.userId,
+        id:     raw.id,
+        title:  raw.title,
+        body:   raw.body
+    };
+}
+
+/* ---- 渲染帖子列表（支持筛选）---- */
+function wp_renderPosts() {
+    var wp_area = document.getElementById("wpPostsArea");
+    var wp_filtered = wp_posts;
+    if (wp_currentFilter !== "") {
+        wp_filtered = wp_posts.filter(function (p) { return String(p.userId) === wp_currentFilter; });
+    }
+
+    document.getElementById("wpShown").textContent = wp_filtered.length;
+
+    if (wp_filtered.length === 0) {
+        wp_area.innerHTML =
+            '<div class="wp_empty"><div class="wp-empty-icon">📭</div>' +
+            '<div>' + (wp_posts.length === 0 ? '还没加载数据，点击上方"获取数据"按钮试试' : '当前筛选条件下没有帖子') + '</div></div>';
+        return;
+    }
+
+    var wp_html = '<div class="wp_posts">';
+    for (var wp_i = 0; wp_i < wp_filtered.length; wp_i++) {
+        var wp_p = wp_filtered[wp_i];
+        var wp_uClass = "wp_u" + ((wp_p.userId - 1) % 10 + 1);
+        // 正文截断：只显示前 3 行
+        var wp_bodyPreview = wp_p.body;
+        if (wp_bodyPreview.length > 80) wp_bodyPreview = wp_bodyPreview.slice(0, 80) + "...";
+
+        wp_html +=
+            '<div class="wp_post" data-idx="' + wp_posts.indexOf(wp_p) + '">' +
+            '<div class="wp_post-head">' +
+            '  <div class="wp_post-id">#' + wp_p.id + '</div>' +
+            '  <span class="wp_user-badge ' + wp_uClass + '">👤 User ' + wp_p.userId + '</span>' +
+            '</div>' +
+            '<div class="wp_post-title">' + wp_p.title + '</div>' +
+            '<div class="wp_post-body">' + wp_bodyPreview + '</div>' +
+            '<div class="wp_post-footer"><span>title.length=' + wp_p.title.length + '</span><span>body.length=' + wp_p.body.length + '</span></div>' +
+            '</div>';
+    }
+    wp_html += '</div>';
+    wp_area.innerHTML = wp_html;
+
+    // 事件委托
+    wp_area.onclick = function (e) {
+        var wp_target = e.target.closest(".wp_post");
+        if (!wp_target) return;
+        var wp_idx = parseInt(wp_target.dataset.idx, 10);
+        wp_showDetail(wp_idx);
+    };
+}
+
+/* ---- 详情 ---- */
+function wp_showDetail(idx) {
+    wp_selectedIdx = idx;
+    var wp_p = wp_posts[idx];
+    document.getElementById("wp_detailTitle").textContent = wp_p.title;
+    document.getElementById("wp_detailMeta").textContent =
+        "postId=" + wp_p.id + " | userId=" + wp_p.userId +
+        " | title.length=" + wp_p.title.length +
+        " | body.length=" + wp_p.body.length;
+    document.getElementById("wp_detailBody").textContent = wp_p.body;
+    document.getElementById("wp_detailRaw").textContent =
+        JSON.stringify({ userId: wp_p.userId, id: wp_p.id, title: wp_p.title, body: wp_p.body }, null, 2);
+    document.getElementById("wp_detail").classList.add("wp_show");
+}
+
+/* ---- 状态条 ---- */
+function wp_setStatus(type, msg) {
+    var wp_s = document.getElementById("wp_status");
+    wp_s.className = "wp_status wp_" + type + "-s";
+    wp_s.textContent = msg;
+}
+
+/* ---- 填充筛选下拉 ---- */
+function wp_buildFilter() {
+    var wp_set = {};
+    for (var wp_i = 0; wp_i < wp_posts.length; wp_i++) wp_set[wp_posts[wp_i].userId] = 1;
+    var wp_users = Object.keys(wp_set).map(Number).sort(function (a, b) { return a - b; });
+    var wp_sel = document.getElementById("wp_filterUser");
+    wp_sel.innerHTML = '<option value="">👤 全部用户 (' + wp_users.length + ')</option>';
+    for (var wp_j = 0; wp_j < wp_users.length; wp_j++) {
+        var wp_cnt = wp_posts.filter(function (p) { return p.userId === wp_users[wp_j]; }).length;
+        wp_sel.innerHTML += '<option value="' + wp_users[wp_j] + '">User ' + wp_users[wp_j] + ' (' + wp_cnt + ' 条)</option>';
+    }
+    document.getElementById("wpUsers").textContent = wp_users.length;
+    document.getElementById("wpTotal").textContent = wp_posts.length;
+    document.getElementById("wpStats").style.display = "flex";
+}
+
+/* ============================================================
+ *  fetch 主流程（完整错误处理）
+ * ============================================================ */
+async function wp_fetchData() {
+    var wp_url = document.getElementById("wp_apiUrl").value.trim();
+    var wp_btn = document.getElementById("wp_btnFetch");
+    if (!wp_url) { wp_setStatus("err", "请先输入接口地址"); return; }
+
+    wp_btn.classList.add("wp_loading"); wp_btn.disabled = true;
+    wp_setStatus("loading", "⏳ 请求 " + wp_url + " ...");
+    wp_selectedIdx = -1;
+    document.getElementById("wp_detail").classList.remove("wp_show");
+    document.getElementById("wpStats").style.display = "none";
+
+    var wp_t0 = performance.now();
+    try {
+        var wp_resp = await fetch(wp_url, {
+            method: "GET",
+            headers: { "Accept": "application/json" }
+            // 注意：不要设 credentials，否则 CORS 要求更严格
+        });
+        if (!wp_resp.ok) throw new Error("HTTP " + wp_resp.status + " " + wp_resp.statusText);
+
+        var wp_ct = wp_resp.headers.get("content-type") || "";
+        var wp_raw;
+        if (wp_ct.indexOf("application/json") !== -1) {
+            wp_raw = await wp_resp.json();
+        } else {
+            wp_raw = await wp_resp.text();
+            try { wp_raw = JSON.parse(wp_raw); } catch (_) {}
+        }
+
+        var wp_dt = ((performance.now() - wp_t0) | 0);
+
+        // normalize：数组走 map，单对象包一层
+        if (Array.isArray(wp_raw)) {
+            wp_posts = wp_raw.map(wp_normalizePost);
+        } else if (wp_raw && typeof wp_raw === "object") {
+            wp_posts = [wp_normalizePost(wp_raw)];
+        } else {
+            throw new Error("返回体既不是数组也不是对象");
+        }
+
+        wp_currentFilter = "";
+        document.getElementById("wp_filterUser").value = "";
+        wp_buildFilter();
+        wp_renderPosts();
+
+        wp_setStatus("ok",
+            "✓ 成功 | HTTP " + wp_resp.status +
+            " | 耗时 " + wp_dt + "ms" +
+            " | Content-Type: " + wp_ct +
+            " | 数据条数: " + wp_posts.length);
+
+    } catch (e) {
+        var wp_dt2 = ((performance.now() - wp_t0) | 0);
+        wp_posts = [];
+        wp_renderPosts();
+        document.getElementById("wpStats").style.display = "none";
+
+        var wp_hint = "";
+        if (e.message.indexOf("Failed to fetch") !== -1) {
+            wp_hint = "\n💡 可能原因：① 接口不支持 CORS ② URL 写错 ③ 网络/防火墙拦截";
+        } else if (e.message.indexOf("JSON") !== -1) {
+            wp_hint = "\n💡 返回体不是合法 JSON";
+        }
+        wp_setStatus("err", "✗ 请求失败 | " + e.message + " | " + wp_dt2 + "ms" + wp_hint);
+
+    } finally {
+        wp_btn.classList.remove("wp_loading");
+        wp_btn.disabled = false;
+    }
+}
+
+/* ---- 绑定 ---- */
+document.getElementById("wp_btnFetch").onclick = wp_fetchData;
+document.getElementById("wp_btnClear").onclick = function () {
+    wp_posts = []; wp_selectedIdx = -1; wp_currentFilter = "";
+    document.getElementById("wp_detail").classList.remove("wp_show");
+    document.getElementById("wpStats").style.display = "none";
+    document.getElementById("wp_filterUser").innerHTML = '<option value="">👤 全部用户</option>';
+    document.getElementById("wp_status").className = "wp_status";
+    document.getElementById("wp_status").textContent = "";
+    wp_renderPosts();
+};
+document.getElementById("wp_filterUser").onchange = function () {
+    wp_currentFilter = this.value;
+    wp_renderPosts();
+};
+document.getElementById("wp_closeDetail").onclick = function () {
+    document.getElementById("wp_detail").classList.remove("wp_show");
+};
+document.getElementById("wp_apiUrl").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") wp_fetchData();
+});
+
+/* 页面加载后自动拉一次 */
+wp_fetchData();
+</script>
+</body>
+</html>

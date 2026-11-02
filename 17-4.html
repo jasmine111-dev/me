@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<!-- 姓名：魏鹏 日期：2026-11-02 功能名称：fetch 接口测试工具（Postman 迷你版） -->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>17-4 fetch 接口测试 · 魏鹏</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #f5f3ff 0%, #ecfdf5 100%);
+            min-height: 100vh; padding: 20px 14px 80px;
+        }
+        .wp_container { max-width: 1100px; margin: 0 auto; }
+        .wp_header { text-align: center; margin-bottom: 16px; }
+        .wp_title { font-size: 26px; color: #1e1b4b; margin-bottom: 4px; }
+        .wp_title .wp_name { color: #7c3aed; font-weight: 700; }
+        .wp_subtitle { color: #64748b; font-size: 13px; }
+
+        /* ===== 方法快捷按钮 ===== */
+        .wp_presets {
+            display: flex; flex-wrap: wrap; gap: 8px;
+            margin-bottom: 12px;
+        }
+        .wp_preset {
+            padding: 6px 14px; border-radius: 6px; cursor: pointer;
+            font-size: 12px; font-weight: 700; font-family: Consolas, monospace;
+            border: 2px solid #e2e8f0; background: #fff; color: #475569;
+            transition: all .15s;
+        }
+        .wp_preset:hover { background: #f5f3ff; border-color: #c4b5fd; }
+        .wp_preset.wp-get    { border-color: #22c55e; color: #15803d; background: #f0fdf4; }
+        .wp_preset.wp-post   { border-color: #3b82f6; color: #1d4ed8; background: #eff6ff; }
+        .wp_preset.wp-put    { border-color: #f59e0b; color: #b45309; background: #fffbeb; }
+        .wp_preset.wp-patch  { border-color: #a855f7; color: #7e22ce; background: #faf5ff; }
+        .wp_preset.wp-delete { border-color: #ef4444; color: #b91c1c; background: #fef2f2; }
+
+        /* ===== 请求区 ===== */
+        .wp_request {
+            background: #fff; border-radius: 12px; padding: 16px 18px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, .06); margin-bottom: 16px;
+        }
+        .wp_url-row {
+            display: flex; gap: 8px; margin-bottom: 12px;
+        }
+        .wp_method-select {
+            padding: 9px 12px; border: 2px solid #e2e8f0; border-radius: 8px;
+            font-size: 13px; font-weight: 700; font-family: Consolas, monospace;
+            cursor: pointer; background: #fff; min-width: 90px;
+        }
+        .wp_method-select.wp-GET    { color: #15803d; border-color: #22c55e; }
+        .wp_method-select.wp-POST   { color: #1d4ed8; border-color: #3b82f6; }
+        .wp_method-select.wp-PUT    { color: #b45309; border-color: #f59e0b; }
+        .wp_method-select.wp-PATCH  { color: #7e22ce; border-color: #a855f7; }
+        .wp_method-select.wp-DELETE { color: #b91c1c; border-color: #ef4444; }
+
+        .wp_url-input {
+            flex: 1; padding: 9px 14px; font-size: 13px;
+            border: 2px solid #e2e8f0; border-radius: 8px;
+            font-family: Consolas, monospace;
+        }
+        .wp_url-input:focus { outline: none; border-color: #7c3aed; }
+
+        .wp_send-btn {
+            padding: 9px 22px; border-radius: 8px; border: none;
+            background: #7c3aed; color: #fff; font-size: 13px;
+            font-weight: 700; cursor: pointer; font-family: inherit;
+            white-space: nowrap;
+        }
+        .wp_send-btn:hover { background: #6d28d9; }
+        .wp_send-btn:disabled { background: #a78bfa; cursor: progress; }
+        .wp_send-btn.wp-red { background: #ef4444; }
+        .wp_send-btn.wp-red:hover { background: #dc2626; }
+
+        .wp_textarea-label {
+            font-size: 12px; color: #64748b; margin-bottom: 6px;
+            font-weight: 600;
+        }
+        .wp_textarea {
+            width: 100%; min-height: 100px; padding: 10px 12px;
+            border: 2px solid #e2e8f0; border-radius: 8px; font-size: 12px;
+            font-family: Consolas, monospace; background: #fafafa;
+            resize: vertical; line-height: 1.7;
+        }
+        .wp_textarea:focus { outline: none; border-color: #7c3aed; background: #fff; }
+        .wp_textarea.wp_disabled {
+            background: #f1f5f9; color: #94a3b8; cursor: not-allowed;
+        }
+
+        /* ===== 响应区 ===== */
+        .wp_response {
+            background: #fff; border-radius: 12px; padding: 16px 18px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, .06);
+        }
+        .wp_resp-meta {
+            display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;
+            font-size: 12px; font-family: Consolas, monospace;
+        }
+        .wp_resp-chip {
+            padding: 4px 12px; border-radius: 14px;
+            background: #f1f5f9; color: #475569; font-weight: 600;
+        }
+        .wp_resp-chip.wp-ok   { background: #dcfce7; color: #15803d; }
+        .wp_resp-chip.wp-bad  { background: #fee2e2; color: #b91c1c; }
+        .wp_resp-chip.wp-warn { background: #fef3c7; color: #a16207; }
+        .wp_resp-chip.wp-info { background: #dbeafe; color: #1d4ed8; }
+
+        .wp_resp-block { margin-bottom: 14px; }
+        .wp_resp-block:last-child { margin-bottom: 0; }
+        .wp_resp-title {
+            font-size: 12px; color: #94a3b8; margin-bottom: 6px;
+            font-weight: 600; text-transform: uppercase; letter-spacing: .5px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .wp_copy-btn {
+            background: transparent; border: 1px solid #e2e8f0; color: #64748b;
+            font-size: 11px; padding: 2px 10px; border-radius: 4px; cursor: pointer;
+            font-family: inherit;
+        }
+        .wp_copy-btn:hover { border-color: #c4b5fd; color: #7c3aed; }
+        .wp_code {
+            background: #0f172a; color: #e2e8f0; border-radius: 8px;
+            padding: 12px 14px; font-size: 12px; font-family: Consolas, monospace;
+            line-height: 1.7; max-height: 300px; overflow: auto;
+            white-space: pre-wrap; word-break: break-all;
+        }
+        .wp_code.wp-empty-state {
+            text-align: center; color: #64748b; font-style: italic;
+            background: #f8fafc; max-height: 60px; padding: 24px;
+        }
+
+        /* ===== 错误块 ===== */
+        .wp_error-block {
+            background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px;
+            padding: 12px 14px; font-size: 12px; font-family: Consolas, monospace;
+            color: #b91c1c; line-height: 1.7; margin-bottom: 12px;
+        }
+        .wp_error-block strong { color: #991b1b; display: block; margin-bottom: 4px; }
+    </style>
+</head>
+<body>
+<div class="wp_container">
+    <div class="wp_header">
+        <h1 class="wp_title">fetch 接口测试工具 · <span class="wp_name">魏鹏</span></h1>
+        <p class="wp_subtitle">对 <code>https://jsonplaceholder.typicode.com/posts</code> 进行 GET / POST / PUT / PATCH / DELETE 测试</p>
+    </div>
+
+    <!-- 快捷预设 -->
+    <div class="wp_presets">
+        <button class="wp_preset wp-get"    data-method="GET"    data-url="/posts"                  data-body="">GET    /posts          (列表)</button>
+        <button class="wp_preset wp-get"    data-method="GET"    data-url="/posts/1"                data-body="">GET    /posts/1         (详情)</button>
+        <button class="wp_preset wp-get"    data-method="GET"    data-url="/posts/1/comments"       data-body="">GET    /posts/1/comments</button>
+        <button class="wp_preset wp-post"   data-method="POST"   data-url="/posts"                  data-body='{\n  "title": "新建测试帖",\n  "body": "这是通过 POST 创建的帖子",\n  "userId": 1\n}'>POST   /posts           (创建)</button>
+        <button class="wp_preset wp-put"    data-method="PUT"    data-url="/posts/1"                data-body='{\n  "id": 1,\n  "title": "PUT 整条替换",\n  "body": "PUT 会覆盖整条记录",\n  "userId": 1\n}'>PUT    /posts/1         (整条替换)</button>
+        <button class="wp_preset wp-patch"  data-method="PATCH"  data-url="/posts/1"                data-body='{\n  "title": "PATCH 只改这一个字段"\n}'>PATCH  /posts/1         (部分更新)</button>
+        <button class="wp_preset wp-delete" data-method="DELETE" data-url="/posts/1"                data-body="">DELETE /posts/1         (删除)</button>
+    </div>
+
+    <!-- 请求区 -->
+    <div class="wp_request">
+        <div class="wp_url-row">
+            <select class="wp_method-select" id="wp_method">
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="PATCH">PATCH</option>
+                <option value="DELETE">DELETE</option>
+            </select>
+            <input type="text" class="wp_url-input" id="wp_url"
+                   value="https://jsonplaceholder.typicode.com/posts">
+            <button class="wp_send-btn" id="wp_send">▶ Send</button>
+        </div>
+
+        <div class="wp_textarea-label">Headers（JSON 格式，可选）</div>
+        <textarea class="wp_textarea" id="wp_headers" placeholder='{"Accept": "application/json", "X-Custom": "demo"}'>{"Accept": "application/json"}</textarea>
+
+        <div class="wp_textarea-label" id="wp_body-label">Request Body（JSON 格式，POST/PUT/PATCH 时启用）</div>
+        <textarea class="wp_textarea wp_disabled" id="wp_body" disabled
+                  placeholder='{"title": "...", "body": "...", "userId": 1}'></textarea>
+    </div>
+
+    <!-- 响应区 -->
+    <div class="wp_response">
+        <div class="wp_resp-meta" id="wp_respMeta">
+            <span class="wp_resp-chip wp-info">等待请求...</span>
+        </div>
+
+        <div class="wp_error-block" id="wp_errorBlock" style="display:none;"></div>
+
+        <div class="wp_resp-block">
+            <div class="wp_resp-title">
+                <span>Response Body</span>
+                <button class="wp_copy-btn" id="wp_copyBody">📋 复制</button>
+            </div>
+            <pre class="wp_code wp-empty-state" id="wp_respBody">点击上方 Send 发起请求</pre>
+        </div>
+
+        <div class="wp_resp-block">
+            <div class="wp_resp-title">
+                <span>Response Headers</span>
+                <button class="wp_copy-btn" id="wp_copyHeaders">📋 复制</button>
+            </div>
+            <pre class="wp_code wp-empty-state" id="wp_respHeaders">（请求发出后展示）</pre>
+        </div>
+
+        <div class="wp_resp-block">
+            <div class="wp_resp-title">Request 详情（对比用）</div>
+            <pre class="wp_code wp-empty-state" id="wp_reqDetail">（请求发出后展示）</pre>
+        </div>
+    </div>
+</div>
+
+<script>
+/* ============================================================
+ *  17-4.html：fetch 接口测试工具
+ *  - 支持 GET / POST / PUT / PATCH / DELETE
+ *  - 分层防御：HTTP 状态码 → Content-Type → JSON 解析 → 网络错误
+ *  - 完整错误提示：三种错误分类（经验 228422）
+ * ============================================================ */
+
+var wp_BASE = "https://jsonplaceholder.typicode.com";
+
+/* 根据方法切换 method 下拉样式 + body 可用状态 */
+function wp_onMethodChange() {
+    var wp_sel = document.getElementById("wp_method");
+    wp_sel.className = "wp_method-select wp-" + wp_sel.value;
+    var wp_body = document.getElementById("wp_body");
+    var wp_bodyLabel = document.getElementById("wp_body-label");
+    var wp_withBody = (wp_sel.value === "POST" || wp_sel.value === "PUT" || wp_sel.value === "PATCH");
+    if (wp_withBody) {
+        wp_body.disabled = false;
+        wp_body.classList.remove("wp_disabled");
+        wp_bodyLabel.textContent = "Request Body（JSON 格式，" + wp_sel.value + " 时启用）";
+    } else {
+        wp_body.disabled = true;
+        wp_body.classList.add("wp_disabled");
+        wp_bodyLabel.textContent = "Request Body（GET / DELETE 不需要 body）";
+    }
+}
+document.getElementById("wp_method").addEventListener("change", wp_onMethodChange);
+
+/* ===== 快捷预设 ===== */
+document.querySelectorAll(".wp_preset").forEach(function (btn) {
+    btn.onclick = function () {
+        var wp_method = btn.dataset.method;
+        var wp_path = btn.dataset.url;
+        var wp_body = btn.dataset.body;
+        document.getElementById("wp_method").value = wp_method;
+        document.getElementById("wp_url").value = wp_BASE + wp_path;
+        document.getElementById("wp_body").value = wp_body || "";
+        wp_onMethodChange();
+    };
+});
+
+/* ===== 发送请求 ===== */
+async function wp_sendRequest() {
+    var wp_method = document.getElementById("wp_method").value;
+    var wp_url = document.getElementById("wp_url").value.trim();
+    var wp_headersRaw = document.getElementById("wp_headers").value.trim();
+    var wp_bodyRaw = document.getElementById("wp_body").value.trim();
+    var wp_sendBtn = document.getElementById("wp_send");
+
+    // UI 状态
+    wp_sendBtn.disabled = true;
+    wp_sendBtn.textContent = "⏳ 发送中...";
+    document.getElementById("wp_errorBlock").style.display = "none";
+    document.getElementById("wp_respBody").className = "wp_code wp-empty-state";
+    document.getElementById("wp_respBody").textContent = "请求中...";
+    document.getElementById("wp_respHeaders").className = "wp_code wp-empty-state";
+    document.getElementById("wp_respHeaders").textContent = "";
+
+    // 构造 headers（容错解析）
+    var wp_headers = { "Accept": "application/json" };
+    if (wp_headersRaw) {
+        try {
+            var wp_parsed = JSON.parse(wp_headersRaw);
+            for (var wp_k in wp_parsed) wp_headers[wp_k] = String(wp_parsed[wp_k]);
+        } catch (e) {
+            wp_showError("Headers JSON 语法错误", e.message);
+            wp_sendBtn.disabled = false; wp_sendBtn.textContent = "▶ Send";
+            return;
+        }
+    }
+
+    // 构造 fetch 选项
+    var wp_options = { method: wp_method, headers: wp_headers };
+    var wp_withBody = (wp_method !== "GET" && wp_method !== "HEAD" && wp_method !== "DELETE");
+    if (wp_withBody) {
+        if (!wp_bodyRaw) {
+            wp_showError("缺少 Request Body", wp_method + " 请求需要 body，请在下方输入 JSON");
+            wp_sendBtn.disabled = false; wp_sendBtn.textContent = "▶ Send";
+            return;
+        }
+        try {
+            JSON.parse(wp_bodyRaw); // 仅做语法校验
+        } catch (e) {
+            wp_showError("Request Body JSON 语法错误", e.message + "\n示例：{\"title\": \"xxx\", \"userId\": 1}");
+            wp_sendBtn.disabled = false; wp_sendBtn.textContent = "▶ Send";
+            return;
+        }
+        wp_options.body = wp_bodyRaw;
+        wp_options.headers["Content-Type"] = "application/json";
+    }
+
+    // 渲染 Request 详情（方便对比）
+    document.getElementById("wp_reqDetail").textContent =
+        wp_method + " " + wp_url + "\n" +
+        "HEADERS:\n" + JSON.stringify(wp_headers, null, 2) + "\n" +
+        (wp_withBody ? "BODY:\n" + wp_bodyRaw : "BODY: (无)");
+
+    var wp_t0 = performance.now();
+    try {
+        var wp_resp = await fetch(wp_url, wp_options);
+        var wp_ct = wp_resp.headers.get("content-type") || "";
+        var wp_respText = await wp_resp.text(); // 先拿 text，后续再判断是 JSON 还是文本
+        var wp_dt = ((performance.now() - wp_t0) | 0);
+
+        // ===== 分层解析响应（经验 228422：status → content-type → text/json）=====
+        var wp_status = wp_resp.status;
+        var wp_statusText = wp_resp.statusText;
+
+        var wp_isJson = (wp_ct.indexOf("application/json") !== -1);
+        var wp_isOk = wp_resp.ok; // 2xx 为 true
+
+        // 渲染元数据 chips
+        var wp_chips = [];
+        wp_chips.push('<span class="wp_resp-chip ' + (wp_isOk ? "wp-ok" : "wp-bad") + '">' +
+            wp_status + ' ' + wp_statusText + '</span>');
+        wp_chips.push('<span class="wp_resp-chip wp-info">' + wp_dt + ' ms</span>');
+        wp_chips.push('<span class="wp_resp-chip">Content-Type: ' + wp_ct + '</span>');
+        document.getElementById("wp_respMeta").innerHTML = wp_chips.join("");
+
+        // 渲染 headers
+        var wp_headersObj = {};
+        wp_resp.headers.forEach(function (v, k) { wp_headersObj[k] = v; });
+        document.getElementById("wp_respHeaders").textContent = JSON.stringify(wp_headersObj, null, 2);
+        document.getElementById("wp_respHeaders").className = "wp_code";
+
+        // 渲染 body：按 content-type 分层
+        var wp_bodyToShow;
+        if (wp_isJson) {
+            try {
+                wp_bodyToShow = JSON.stringify(JSON.parse(wp_respText), null, 2);
+            } catch (e) {
+                wp_bodyToShow = wp_respText + "\n\n⚠️ 声明是 JSON 但解析失败: " + e.message;
+            }
+        } else if (wp_respText.trim() === "") {
+            wp_bodyToShow = "(服务端返回空响应体)";
+        } else {
+            wp_bodyToShow = wp_respText + "\n\n⚠️ 非 JSON 响应（Content-Type: " + wp_ct + "）";
+        }
+        document.getElementById("wp_respBody").textContent = wp_bodyToShow;
+        document.getElementById("wp_respBody").className = "wp_code";
+
+        // HTTP 错误（4xx / 5xx）但服务器返回了 JSON 错误体 —— 高亮但不阻塞
+        if (!wp_isOk) {
+            wp_showError("HTTP " + wp_status + " " + wp_statusText,
+                "这是客户端/服务端错误，具体错误体已在上方 Response Body 展示；" +
+                "jsonplaceholder 是 mock 服务，404 通常是路径写错");
+        }
+
+    } catch (e) {
+        // ===== 网络级错误：fetch 本身抛错 =====
+        var wp_dt2 = ((performance.now() - wp_t0) | 0);
+        document.getElementById("wp_respMeta").innerHTML =
+            '<span class="wp_resp-chip wp-bad">✗ 网络错误</span>' +
+            '<span class="wp_resp-chip">' + wp_dt2 + ' ms</span>';
+        document.getElementById("wp_respBody").textContent = "(无响应体 — fetch 本身抛错)";
+        document.getElementById("wp_respBody").className = "wp_code wp-empty-state";
+        document.getElementById("wp_respHeaders").textContent = "(无响应头)";
+        document.getElementById("wp_respHeaders").className = "wp_code wp-empty-state";
+
+        var wp_hint = "";
+        if (e.message.indexOf("Failed to fetch") !== -1) {
+            wp_hint =
+                "常见原因：\n" +
+                "① 接口不支持 CORS（跨域）— 当前浏览器页面是 file:// 或非同源；\n" +
+                "② URL 写错 / 服务挂了 / 防火墙拦截；\n" +
+                "③ HTTPS 混合内容（https 页面请求 http 接口）。\n" +
+                "\n💡 jsonplaceholder.typicode.com 是支持 CORS 的，如果仍失败多半是 URL 写错。";
+        } else {
+            wp_hint = e.message;
+        }
+        wp_showError("fetch 网络错误", wp_hint);
+    } finally {
+        wp_sendBtn.disabled = false;
+        wp_sendBtn.textContent = "▶ Send";
+    }
+}
+
+function wp_showError(title, detail) {
+    var wp_block = document.getElementById("wp_errorBlock");
+    wp_block.style.display = "block";
+    wp_block.innerHTML = "<strong>⚠ " + title + "</strong>" +
+        (detail ? detail.replace(/\n/g, "<br>") : "");
+}
+
+/* ===== 绑定 ===== */
+document.getElementById("wp_send").onclick = wp_sendRequest;
+document.getElementById("wp_url").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") wp_sendRequest();
+});
+document.getElementById("wp_copyBody").onclick = function () {
+    wp_copy(document.getElementById("wp_respBody").textContent);
+};
+document.getElementById("wp_copyHeaders").onclick = function () {
+    wp_copy(document.getElementById("wp_respHeaders").textContent);
+};
+function wp_copy(text) {
+    if (navigator.clipboard) navigator.clipboard.writeText(text);
+    else {
+        var wp_t = document.createElement("textarea");
+        wp_t.value = text; document.body.appendChild(wp_t); wp_t.select();
+        document.execCommand("copy"); document.body.removeChild(wp_t);
+    }
+}
+
+/* 初始化 */
+wp_onMethodChange();
+</script>
+</body>
+</html>

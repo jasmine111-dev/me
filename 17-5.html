@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<!-- 姓名：魏鹏 日期：2026-11-02 功能名称：JavaScript 两种定时器 setTimeout 与 setInterval 演示 -->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>17-5 定时器 · 魏鹏</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #fdf2f8 0%, #eff6ff 100%);
+            min-height: 100vh; padding: 22px 14px 80px;
+        }
+        .wp_container { max-width: 1080px; margin: 0 auto; }
+        .wp_header { text-align: center; margin-bottom: 18px; }
+        .wp_title { font-size: 28px; color: #1e1b4b; margin-bottom: 4px; }
+        .wp_title .wp_name { color: #db2777; font-weight: 700; }
+        .wp_subtitle { color: #64748b; font-size: 14px; }
+
+        /* ===== 理论卡片 ===== */
+        .wp_theory {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 14px; margin-bottom: 18px;
+        }
+        .wp-theory-card {
+            background: #fff; border-radius: 12px; padding: 18px 20px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, .06);
+            border-top: 4px solid;
+        }
+        .wp-theory-card.wp_settimeout { border-top-color: #f59e0b; }
+        .wp-theory-card.wp_setinterval { border-top-color: #0ea5e9; }
+        .wp-theory-card h3 { font-size: 17px; margin-bottom: 8px; }
+        .wp-theory-card.wp_settimeout h3 { color: #b45309; }
+        .wp-theory-card.wp_setinterval h3 { color: #0369a1; }
+        .wp-theory-card p { font-size: 13px; color: #475569; line-height: 1.8; margin-bottom: 8px; }
+        .wp-theory-card code {
+            background: #f1f5f9; padding: 1px 6px; border-radius: 3px;
+            font-family: Consolas, monospace; font-size: 12px;
+        }
+        .wp-theory-card pre {
+            background: #0f172a; color: #e2e8f0; border-radius: 6px;
+            padding: 10px 12px; font-size: 12px; font-family: Consolas, monospace;
+            line-height: 1.7; margin-top: 6px; overflow: auto;
+        }
+
+        /* ===== 演示卡片通用 ===== */
+        .wp_demos { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; }
+        .wp_demo {
+            background: #fff; border-radius: 12px; padding: 18px 20px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, .06);
+        }
+        .wp_demo h3 {
+            font-size: 16px; margin-bottom: 12px; padding-left: 10px;
+            border-left: 4px solid; color: #0f172a;
+        }
+        .wp_demo.wp_demo-settimeout h3 { border-left-color: #f59e0b; }
+        .wp_demo.wp_demo-setinterval h3 { border-left-color: #0ea5e9; }
+
+        .wp_ctrl-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; align-items: center; }
+        .wp_btn {
+            padding: 7px 16px; border-radius: 6px; border: none; cursor: pointer;
+            font-size: 13px; font-weight: 600; font-family: inherit;
+            transition: all .15s;
+        }
+        .wp_btn:hover { transform: translateY(-1px); }
+        .wp_btn.wp_orange { background: #f59e0b; color: #fff; }
+        .wp_btn.wp_orange:hover { background: #d97706; }
+        .wp_btn.wp_blue   { background: #0ea5e9; color: #fff; }
+        .wp_btn.wp_blue:hover { background: #0284c7; }
+        .wp_btn.wp_gray   { background: #e2e8f0; color: #475569; }
+        .wp_btn.wp_gray:hover { background: #cbd5e1; }
+        .wp_btn:disabled  { opacity: .5; cursor: not-allowed; transform: none; }
+        .wp_input {
+            padding: 6px 10px; border: 2px solid #e2e8f0; border-radius: 6px;
+            font-size: 13px; font-family: Consolas, monospace; width: 90px;
+        }
+        .wp_input:focus { outline: none; border-color: #7c3aed; }
+        .wp_unit { font-size: 12px; color: #64748b; }
+
+        /* ---- 演示 1：setTimeout 倒计时 ---- */
+        .wp_countdown-display {
+            text-align: center; padding: 20px;
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-radius: 10px; margin-bottom: 10px;
+        }
+        .wp_countdown-num {
+            font-size: 72px; font-weight: 900; color: #b45309;
+            font-family: Consolas, monospace; line-height: 1;
+        }
+        .wp_countdown-label { font-size: 13px; color: #92400e; margin-top: 6px; }
+
+        /* ---- 演示 2：setInterval 时钟 ---- */
+        .wp_clock-display {
+            text-align: center; padding: 20px;
+            background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+            border-radius: 10px; margin-bottom: 10px;
+        }
+        .wp_clock-time {
+            font-size: 44px; font-weight: 800; color: #0369a1;
+            font-family: Consolas, monospace; letter-spacing: 2px;
+        }
+        .wp_clock-date { font-size: 13px; color: #0c4a6e; margin-top: 4px; }
+
+        /* ---- 演示 3：进度条 ---- */
+        .wp_progress-wrap {
+            height: 22px; background: #e2e8f0; border-radius: 11px;
+            overflow: hidden; margin-bottom: 10px;
+        }
+        .wp_progress-bar {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, #0ea5e9, #22d3ee);
+            border-radius: 11px; transition: width .1s linear;
+        }
+        .wp-progress-text { font-size: 12px; color: #475569; text-align: center; }
+
+        /* ---- 演示 4：闪烁提示（setTimeout 递归版 vs setInterval 版）---- */
+        .wp_blink-box {
+            height: 50px; border-radius: 8px; margin-bottom: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 13px; color: #fff;
+            background: #cbd5e1; transition: background .1s;
+        }
+        .wp_blink-box.wp_on { background: linear-gradient(135deg, #f472b6, #db2777); }
+
+        /* ---- 日志 ---- */
+        .wp_log {
+            background: #0f172a; color: #e2e8f0; border-radius: 8px;
+            padding: 10px 12px; font-size: 11px; font-family: Consolas, monospace;
+            line-height: 1.7; max-height: 140px; overflow: auto;
+        }
+        .wp_log-line { white-space: pre-wrap; }
+        .wp_log-time { color: #94a3b8; }
+        .wp_log-tag {
+            display: inline-block; padding: 0 5px; border-radius: 3px;
+            font-weight: 700; margin-right: 6px;
+        }
+        .wp_log-tag.wp_st { background: #f59e0b; color: #fff; }
+        .wp_log-tag.wp_si { background: #0ea5e9; color: #fff; }
+        .wp_log-tag.wp_clr { background: #64748b; color: #fff; }
+
+        /* ===== 对比总结 ===== */
+        .wp_compare {
+            background: #fff; border-radius: 12px; padding: 18px 22px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, .06); margin-top: 18px;
+        }
+        .wp_compare h3 { font-size: 16px; color: #1e1b4b; margin-bottom: 12px; }
+        .wp_compare table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .wp_compare th, .wp_compare td {
+            padding: 8px 10px; text-align: left; border-bottom: 1px solid #f1f5f9;
+        }
+        .wp_compare th { background: #f8fafc; color: #475569; font-size: 12px; }
+        .wp_compare th.wp_col-st { color: #b45309; }
+        .wp_compare th.wp_col-si { color: #0369a1; }
+        .wp_compare code {
+            background: #f1f5f9; padding: 1px 5px; border-radius: 3px;
+            font-family: Consolas, monospace; font-size: 11px;
+        }
+        .wp_tip {
+            margin-top: 12px; padding: 10px 14px; border-radius: 8px;
+            background: #fef3c7; font-size: 12px; color: #92400e; line-height: 1.7;
+        }
+        .wp_tip strong { display: block; margin-bottom: 4px; color: #b45309; }
+    </style>
+</head>
+<body>
+<div class="wp_container">
+    <div class="wp_header">
+        <h1 class="wp_title">JavaScript 两种定时器 · <span class="wp_name">魏鹏</span></h1>
+        <p class="wp_subtitle">setTimeout（一次性延迟） vs setInterval（周期性重复）— 附 4 个可交互演示 + 对比表</p>
+    </div>
+
+    <!-- ===== 理论卡片 ===== -->
+    <div class="wp_theory">
+        <div class="wp-theory-card wp_settimeout">
+            <h3>① setTimeout — 延迟一次</h3>
+            <p>在指定毫秒数后<strong>只执行一次</strong>回调函数，返回一个定时器 ID。</p>
+            <p>签名：<code>setTimeout(fn, delay, ...args)</code></p>
+<pre>// 3 秒后打印一次
+var wp_t1 = setTimeout(function() {
+    console.log("3 秒到了！");
+}, 3000);
+
+// 还没到时间就取消
+clearTimeout(wp_t1);</pre>
+        </div>
+        <div class="wp-theory-card wp_setinterval">
+            <h3>② setInterval — 周期重复</h3>
+            <p>每隔指定毫秒数<strong>重复执行</strong>回调函数，返回一个定时器 ID。</p>
+            <p>签名：<code>setInterval(fn, delay, ...args)</code></p>
+<pre>// 每隔 1 秒打印一次
+var wp_t2 = setInterval(function() {
+    console.log("又过了 1 秒");
+}, 1000);
+
+// 记得清理！否则永远跑
+clearInterval(wp_t2);</pre>
+        </div>
+    </div>
+
+    <!-- ===== 演示 1：setTimeout 倒计时 ===== -->
+    <div class="wp_demos">
+        <div class="wp_demo wp_demo-settimeout">
+            <h3>演示 1：setTimeout 倒计时</h3>
+            <div class="wp_countdown-display">
+                <div class="wp_countdown-num" id="wpCountNum">-</div>
+                <div class="wp_countdown-label" id="wpCountLabel">点"开始倒计时"试试看</div>
+            </div>
+            <div class="wp_ctrl-row">
+                <span class="wp_unit">秒数:</span>
+                <input type="number" class="wp_input" id="wpCountTarget" value="5" min="1" max="30">
+                <button class="wp_btn wp_orange" id="wpCountStart">▶ 开始</button>
+                <button class="wp_btn wp_gray" id="wpCountCancel">✕ 取消</button>
+            </div>
+            <div class="wp_log" id="wpCountLog"></div>
+        </div>
+
+        <!-- ===== 演示 2：setInterval 时钟 ===== -->
+        <div class="wp_demo wp_demo-setinterval">
+            <h3>演示 2：setInterval 数字时钟</h3>
+            <div class="wp_clock-display">
+                <div class="wp_clock-time" id="wpClock">--:--:--</div>
+                <div class="wp_clock-date" id="wpClockDate">----年--月--日 星期-</div>
+            </div>
+            <div class="wp_ctrl-row">
+                <button class="wp_btn wp_blue" id="wpClockStart">▶ 启动时钟</button>
+                <button class="wp_btn wp_gray" id="wpClockStop">⏸ 暂停</button>
+            </div>
+            <div class="wp_log" id="wpClockLog"></div>
+        </div>
+
+        <!-- ===== 演示 3：setInterval 进度条 ===== -->
+        <div class="wp_demo wp_demo-setinterval">
+            <h3>演示 3：setInterval 进度条</h3>
+            <div class="wp_progress-wrap"><div class="wp_progress-bar" id="wpProgressBar"></div></div>
+            <div class="wp-progress-text" id="wpProgressText">0 %</div>
+            <div class="wp_ctrl-row">
+                <button class="wp_btn wp_blue" id="wpProgressStart">▶ 开始</button>
+                <button class="wp_btn wp_gray" id="wpProgressStop">⏸ 暂停</button>
+                <button class="wp_btn wp_gray" id="wpProgressReset">🔄 重置</button>
+            </div>
+            <div class="wp_log" id="wpProgressLog"></div>
+        </div>
+
+        <!-- ===== 演示 4：递归 setTimeout vs setInterval ===== -->
+        <div class="wp_demo wp_demo-settimeout">
+            <h3>演示 4：递归 setTimeout 闪烁（精确间隔）</h3>
+            <div class="wp_blink-box" id="wpBlinkBox">闪烁提示：当前 OFF</div>
+            <div class="wp_ctrl-row">
+                <span class="wp_unit">间隔 ms:</span>
+                <input type="number" class="wp_input" id="wpBlinkInterval" value="500" min="100" max="5000">
+                <button class="wp_btn wp_orange" id="wpBlinkStart">▶ 递归启动</button>
+                <button class="wp_btn wp_blue" id="wpBlinkStartSI">▶ setInterval 版</button>
+                <button class="wp_btn wp_gray" id="wpBlinkStop">✕ 停止</button>
+            </div>
+            <div class="wp_log" id="wpBlinkLog"></div>
+        </div>
+    </div>
+
+    <!-- ===== 对比总结 ===== -->
+    <div class="wp_compare">
+        <h3>📊 两种定时器对比</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>对比点</th>
+                    <th class="wp_col-st">setTimeout</th>
+                    <th class="wp_col-si">setInterval</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>执行次数</td><td><strong>1 次</strong></td><td><strong>无限次</strong>（直到 clear）</td></tr>
+                <tr><td>清除方法</td><td><code>clearTimeout(id)</code></td><td><code>clearInterval(id)</code></td></tr>
+                <tr><td>间隔含义</td><td>"至少等 N ms 后执行"</td><td>"每隔 N ms 执行一次"</td></tr>
+                <tr><td>首次延迟</td><td>有（delay 参数）</td><td>有（首次也等 delay）</td></tr>
+                <tr><td>长任务影响</td><td>串行，下一次等回调跑完再算</td><td>可能<strong>堆积</strong>（回调跑 > delay）</td></tr>
+                <tr><td>典型用途</td><td>延迟提示、动画一次性、debounce</td><td>时钟、轮询、进度条、闪烁</td></tr>
+                <tr><td>模拟对方</td><td>递归调用自己 = 实现 setInterval</td><td>—</td></tr>
+            </tbody>
+        </table>
+
+        <div class="wp_tip">
+            <strong>⚠ Event Loop 里的隐藏坑</strong>
+            ① 实际间隔 <strong>≥ 你写的 delay</strong>，因为 JS 单线程、回调要等主线程空闲；<br>
+            ② delay = 0 也不是"立刻执行"，只是把回调扔到宏任务队列末尾；<br>
+            ③ <strong>页面标签页切后台后</strong>，setInterval 会被浏览器节流到约 1 次/分钟（省电）。<br>
+            ④ 递归 <code>setTimeout(fn, delay)</code> 比 <code>setInterval</code> 更"精确"——因为上一次执行完才开始算下一次 delay。
+        </div>
+    </div>
+</div>
+
+<script>
+/* ============================================================
+ *  17-5.html：两种定时器演示
+ *  所有定时器变量都用 wp_ 前缀、集中声明在顶部 —— 避免跨块重复声明（经验 870464）
+ *  所有时间显示用本地日期 —— 避免 UTC vs Local 偏差（经验 201537）
+ * ============================================================ */
+
+/* ===== 通用：写日志 ===== */
+function wp_log(id, tag, msg) {
+    var wp_box = document.getElementById(id);
+    var wp_time = new Date();
+    var wp_ts =
+        String(wp_time.getHours()).padStart(2, "0") + ":" +
+        String(wp_time.getMinutes()).padStart(2, "0") + ":" +
+        String(wp_time.getSeconds()).padStart(2, "0");
+    var wp_line = '<div class="wp_log-line"><span class="wp_log-time">[' + wp_ts + ']</span>' +
+        '<span class="wp_log-tag wp_' + tag + '">' + tag.toUpperCase() + '</span>' + msg + '</div>';
+    wp_box.innerHTML += wp_line;
+    wp_box.scrollTop = wp_box.scrollHeight;
+}
+function wp_clearLog(id) { document.getElementById(id).innerHTML = ""; }
+
+/* ============================================================
+ *  演示 1：setTimeout 倒计时
+ * ============================================================ */
+var wp_countTimerId = null;
+document.getElementById("wpCountStart").onclick = function () {
+    // 清掉旧的
+    if (wp_countTimerId !== null) { clearTimeout(wp_countTimerId); wp_countTimerId = null; }
+    wp_clearLog("wpCountLog");
+
+    var wp_target = parseInt(document.getElementById("wpCountTarget").value, 10);
+    if (isNaN(wp_target) || wp_target < 1) wp_target = 5;
+
+    var wp_left = wp_target;
+    var wp_numEl = document.getElementById("wpCountNum");
+    var wp_label = document.getElementById("wpCountLabel");
+    wp_numEl.textContent = wp_left;
+    wp_label.textContent = "倒计时中...（setTimeout 链）";
+    wp_log("wpCountLog", "st", "开始倒计时 " + wp_target + " 秒");
+
+    /* 递归 setTimeout：每次等 1 秒，自己再调自己
+     * 这比 setInterval 更"精确"——因为上一次回调执行完才开始算下一次 delay */
+    function wp_tick() {
+        wp_left--;
+        if (wp_left > 0) {
+            wp_numEl.textContent = wp_left;
+            wp_log("wpCountLog", "st", "  → " + wp_left);
+            wp_countTimerId = setTimeout(wp_tick, 1000);
+        } else {
+            wp_numEl.textContent = "⏰";
+            wp_label.textContent = "时间到！（递归 setTimeout 结束）";
+            wp_log("wpCountLog", "st", "倒计时结束！");
+            wp_countTimerId = null;
+        }
+    }
+    wp_countTimerId = setTimeout(wp_tick, 1000);
+};
+document.getElementById("wpCountCancel").onclick = function () {
+    if (wp_countTimerId !== null) {
+        clearTimeout(wp_countTimerId);
+        wp_log("wpCountLog", "clr", "clearTimeout(" + wp_countTimerId + ") — 已取消");
+        wp_countTimerId = null;
+        document.getElementById("wpCountNum").textContent = "-";
+        document.getElementById("wpCountLabel").textContent = "已取消";
+    } else {
+        wp_log("wpCountLog", "clr", "当前没有倒计时可以取消");
+    }
+};
+
+/* ============================================================
+ *  演示 2：setInterval 数字时钟
+ * ============================================================ */
+var wp_clockTimerId = null;
+function wp_pad(n) { return String(n).padStart(2, "0"); }
+function wp_updateClock() {
+    var wp_now = new Date(); // 本地日期（经验 201537：不要用 toISOString）
+    document.getElementById("wpClock").textContent =
+        wp_pad(wp_now.getHours()) + ":" + wp_pad(wp_now.getMinutes()) + ":" + wp_pad(wp_now.getSeconds());
+    var wp_week = ["日", "一", "二", "三", "四", "五", "六"][wp_now.getDay()];
+    document.getElementById("wpClockDate").textContent =
+        wp_now.getFullYear() + "年" + (wp_now.getMonth() + 1) + "月" + wp_now.getDate() + "日 星期" + wp_week;
+}
+document.getElementById("wpClockStart").onclick = function () {
+    if (wp_clockTimerId !== null) { wp_log("wpClockLog", "si", "时钟已在跑"); return; }
+    wp_updateClock(); // 立即先刷一次，避免等 1 秒才看到变化
+    wp_clockTimerId = setInterval(wp_updateClock, 1000);
+    wp_log("wpClockLog", "si", "setInterval(clock, 1000) 启动, ID=" + wp_clockTimerId);
+};
+document.getElementById("wpClockStop").onclick = function () {
+    if (wp_clockTimerId !== null) {
+        clearInterval(wp_clockTimerId);
+        wp_log("wpClockLog", "clr", "clearInterval(" + wp_clockTimerId + ") 已暂停");
+        wp_clockTimerId = null;
+    } else {
+        wp_log("wpClockLog", "clr", "当前没有运行的时钟");
+    }
+};
+// 页面一开就跑
+wp_updateClock();
+wp_clockTimerId = setInterval(wp_updateClock, 1000);
+wp_log("wpClockLog", "si", "页面加载时自动 setInterval 启动");
+
+/* ============================================================
+ *  演示 3：setInterval 进度条
+ * ============================================================ */
+var wp_progressTimerId = null;
+var wp_progress = 0;
+function wp_updateProgressUI() {
+    document.getElementById("wpProgressBar").style.width = wp_progress + "%";
+    document.getElementById("wpProgressText").textContent = wp_progress + " %";
+}
+document.getElementById("wpProgressStart").onclick = function () {
+    if (wp_progressTimerId !== null) { wp_log("wpProgressLog", "si", "进度条已在跑"); return; }
+    wp_progressTimerId = setInterval(function () {
+        wp_progress += 2;
+        if (wp_progress >= 100) {
+            wp_progress = 100;
+            wp_updateProgressUI();
+            wp_log("wpProgressLog", "si", "到达 100% — 自动 clearInterval");
+            clearInterval(wp_progressTimerId);
+            wp_progressTimerId = null;
+            return;
+        }
+        wp_updateProgressUI();
+    }, 80); // 每 80ms 加 2%，约 4 秒跑完
+    wp_log("wpProgressLog", "si", "setInterval 启动, 每 80ms +2%, ID=" + wp_progressTimerId);
+};
+document.getElementById("wpProgressStop").onclick = function () {
+    if (wp_progressTimerId !== null) {
+        clearInterval(wp_progressTimerId);
+        wp_log("wpProgressLog", "clr", "clearInterval(" + wp_progressTimerId + ") 已暂停");
+        wp_progressTimerId = null;
+    }
+};
+document.getElementById("wpProgressReset").onclick = function () {
+    if (wp_progressTimerId !== null) { clearInterval(wp_progressTimerId); wp_progressTimerId = null; }
+    wp_progress = 0; wp_updateProgressUI();
+    wp_log("wpProgressLog", "clr", "已重置为 0%");
+};
+
+/* ============================================================
+ *  演示 4：递归 setTimeout vs setInterval 闪烁
+ *  同一个功能：两种实现，对比区别
+ * ============================================================ */
+var wp_blinkSTId = null;   // 递归 setTimeout 版 ID
+var wp_blinkSIId = null;   // setInterval 版 ID
+var wp_blinkOn = false;
+var wp_blinkCount = 0;
+function wp_toggleBlink(mode) {
+    wp_blinkOn = !wp_blinkOn;
+    wp_blinkCount++;
+    var wp_box = document.getElementById("wpBlinkBox");
+    wp_box.classList.toggle("wp_on", wp_blinkOn);
+    wp_box.textContent = "闪烁提示：当前 " + (wp_blinkOn ? "ON" : "OFF") + "  (第 " + wp_blinkCount + " 次切换, 模式=" + mode + ")";
+}
+document.getElementById("wpBlinkStart").onclick = function () {
+    wp_stopBlink();
+    wp_blinkCount = 0;
+    var wp_interval = parseInt(document.getElementById("wpBlinkInterval").value, 10) || 500;
+    wp_log("wpBlinkLog", "st", "递归 setTimeout 启动, 间隔=" + wp_interval + "ms");
+    /* 递归版：自己调自己 —— 精确（回调执行完才开始算下一次 delay） */
+    function wp_recurse() {
+        wp_toggleBlink("递归ST");
+        wp_blinkSTId = setTimeout(wp_recurse, wp_interval);
+    }
+    wp_blinkSTId = setTimeout(wp_recurse, wp_interval);
+};
+document.getElementById("wpBlinkStartSI").onclick = function () {
+    wp_stopBlink();
+    wp_blinkCount = 0;
+    var wp_interval = parseInt(document.getElementById("wpBlinkInterval").value, 10) || 500;
+    wp_log("wpBlinkLog", "si", "setInterval 版启动, 间隔=" + wp_interval + "ms, ID=" + wp_blinkSIId);
+    /* setInterval 版：可能堆积（回调执行时间 > interval 时） */
+    wp_blinkSIId = setInterval(function () { wp_toggleBlink("SI"); }, wp_interval);
+};
+function wp_stopBlink() {
+    if (wp_blinkSTId !== null) {
+        clearTimeout(wp_blinkSTId);
+        wp_log("wpBlinkLog", "clr", "clearTimeout(" + wp_blinkSTId + ")");
+        wp_blinkSTId = null;
+    }
+    if (wp_blinkSIId !== null) {
+        clearInterval(wp_blinkSIId);
+        wp_log("wpBlinkLog", "clr", "clearInterval(" + wp_blinkSIId + ")");
+        wp_blinkSIId = null;
+    }
+}
+document.getElementById("wpBlinkStop").onclick = wp_stopBlink;
+</script>
+</body>
+</html>

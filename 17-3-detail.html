@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<!-- 姓名：魏鹏 日期：2026-11-02 功能名称：fetch 跨域获取 posts 详情（两页跳转版本 · 详情页） -->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>17-3 帖子详情 · 魏鹏</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #faf5ff 0%, #eff6ff 100%);
+            min-height: 100vh; padding: 24px 14px 80px;
+        }
+        .wp_container { max-width: 780px; margin: 0 auto; }
+
+        /* ===== 顶部 ===== */
+        .wp_top-bar {
+            background: #fff; border-radius: 12px; padding: 14px 18px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, .06);
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 16px;
+        }
+        .wp_back-btn {
+            background: #f1f5f9; border: none; padding: 7px 14px; border-radius: 7px;
+            cursor: pointer; font-size: 13px; color: #475569; font-family: inherit;
+            font-weight: 600;
+        }
+        .wp_back-btn:hover { background: #e2e8f0; }
+        .wp_id-badge {
+            padding: 6px 14px; border-radius: 16px; font-size: 12px;
+            background: linear-gradient(135deg, #c084fc, #7c3aed); color: #fff;
+            font-family: Consolas, monospace; font-weight: 700;
+        }
+        .wp_status {
+            font-size: 12px; font-family: Consolas, monospace;
+            padding: 6px 12px; border-radius: 6px;
+        }
+        .wp_status.wp_ok-s    { background:#dcfce7; color:#15803d; }
+        .wp_status.wp_err-s   { background:#fef2f2; color:#b91c1c; }
+        .wp_status.wp_loading-s { background:#eff6ff; color:#1d4ed8; }
+
+        /* ===== 详情卡片 ===== */
+        .wp_post-card {
+            background: #fff; border-radius: 14px; padding: 26px;
+            box-shadow: 0 4px 18px rgba(15, 23, 42, .06); margin-bottom: 18px;
+        }
+        .wp_post-title {
+            font-size: 24px; font-weight: 800; color: #0f172a;
+            line-height: 1.4; margin-bottom: 10px; text-transform: capitalize;
+        }
+        .wp_post-meta {
+            display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px;
+            font-size: 12px; color: #64748b; font-family: Consolas, monospace;
+        }
+        .wp_meta-item {
+            padding: 3px 10px; background: #f1f5f9; border-radius: 5px;
+        }
+        .wp_meta-item strong { color: #7c3aed; font-weight: 700; }
+        .wp_post-body {
+            background: #fafafa; border-radius: 8px; padding: 18px;
+            font-size: 15px; color: #334155; line-height: 2;
+            white-space: pre-wrap;
+        }
+
+        /* ===== 评论区 ===== */
+        .wp_comments-section {
+            background: #fff; border-radius: 14px; padding: 22px 26px;
+            box-shadow: 0 4px 18px rgba(15, 23, 42, .06); margin-bottom: 18px;
+        }
+        .wp_comments-title {
+            font-size: 18px; font-weight: 700; color: #1e1b4b; margin-bottom: 14px;
+            padding-left: 10px; border-left: 4px solid #7c3aed;
+        }
+        .wp_comment {
+            padding: 14px 0; border-bottom: 1px solid #f1f5f9;
+        }
+        .wp_comment:last-child { border-bottom: none; }
+        .wp_comment-head {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 6px;
+        }
+        .wp_comment-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: linear-gradient(135deg, #a78bfa, #7c3aed);
+            color: #fff; font-size: 14px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .wp_comment-name {
+            font-size: 13px; font-weight: 700; color: #0f172a;
+        }
+        .wp_comment-email {
+            font-size: 11px; color: #64748b; font-family: Consolas, monospace;
+        }
+        .wp_comment-body {
+            font-size: 13px; color: #475569; line-height: 1.8;
+            padding-left: 46px;
+        }
+
+        /* ===== 原始 JSON ===== */
+        .wp_raw-json {
+            background: #0f172a; color: #e2e8f0; border-radius: 8px;
+            padding: 14px; font-size: 12px; font-family: Consolas, monospace;
+            line-height: 1.7; max-height: 260px; overflow: auto;
+        }
+        .wp_raw-title {
+            font-size: 12px; color: #94a3b8; margin-bottom: 6px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: .5px;
+        }
+
+        /* ===== 空态 ===== */
+        .wp_empty {
+            background: #fff; border-radius: 14px; padding: 60px 20px;
+            text-align: center; color: #94a3b8; font-size: 14px;
+            box-shadow: 0 4px 12px rgba(15,23,42,.06);
+        }
+        .wp-empty-icon { font-size: 48px; margin-bottom: 12px; }
+    </style>
+</head>
+<body>
+<div class="wp_container">
+
+    <!-- 顶部 -->
+    <div class="wp_top-bar">
+        <button class="wp_back-btn" id="wp_back">← 返回列表</button>
+        <span class="wp_id-badge" id="wp_idBadge">帖子 #?</span>
+        <span class="wp_status wp_loading-s" id="wp_status">⏳ 加载中...</span>
+    </div>
+
+    <!-- 帖子详情 -->
+    <div class="wp_post-card" id="wpPostCard" style="display:none;">
+        <div class="wp_post-title" id="wpPostTitle">—</div>
+        <div class="wp_post-meta">
+            <span class="wp_meta-item">postId: <strong id="wpPostId">-</strong></span>
+            <span class="wp_meta-item">userId: <strong id="wpPostUserId">-</strong></span>
+            <span class="wp_meta-item">title.len: <strong id="wpTitleLen">-</strong></span>
+            <span class="wp_meta-item">body.len: <strong id="wpBodyLen">-</strong></span>
+        </div>
+        <div class="wp_post-body" id="wpPostBody">—</div>
+    </div>
+
+    <!-- 评论列表 -->
+    <div class="wp_comments-section" id="wpCommentsSection" style="display:none;">
+        <div class="wp_comments-title">
+            💬 评论（<span id="wpCommentsCount">0</span> 条）
+        </div>
+        <div id="wpCommentsList"></div>
+    </div>
+
+    <!-- 原始 JSON -->
+    <div class="wp_post-card" id="wpRawSection" style="display:none;">
+        <div class="wp_raw-title">① /posts/{id} 原始 JSON</div>
+        <pre class="wp_raw-json" id="wpRawPost"></pre>
+        <div class="wp_raw-title" style="margin-top:14px;">② /posts/{id}/comments 原始 JSON</div>
+        <pre class="wp_raw-json" id="wpRawComments"></pre>
+    </div>
+
+    <!-- 空态 -->
+    <div id="wpEmptyArea"></div>
+</div>
+
+<script>
+/* ============================================================
+ *  17-3-detail.html：详情页
+ *  - 从 URL 参数拿 id：?id=5
+ *  - Promise.all 并发 fetch /posts/{id} + /posts/{id}/comments
+ *  - fetch 失败时友好提示（可能是 id 不存在 或 网络问题）
+ * ============================================================ */
+
+/* 1) 解析 URL 参数 */
+var wp_params = new URLSearchParams(window.location.search);
+var wp_id = parseInt(wp_params.get("id"), 10);
+
+/* 2) 返回按钮 */
+document.getElementById("wp_back").onclick = function () {
+    // 优先用 history.back()，没有历史则跳到列表页
+    if (window.history.length > 1) window.history.back();
+    else window.location.href = "17-3.html";
+};
+
+/* 3) 辅助：fetch + JSON 容错 */
+async function wp_fetchJSON(url) {
+    var wp_resp = await fetch(url, {
+        method: "GET",
+        headers: { "Accept": "application/json" }
+    });
+    if (!wp_resp.ok) throw new Error("HTTP " + wp_resp.status + " " + wp_resp.statusText + " (" + url + ")");
+    var wp_ct = wp_resp.headers.get("content-type") || "";
+    var wp_raw;
+    if (wp_ct.indexOf("application/json") !== -1) {
+        wp_raw = await wp_resp.json();
+    } else {
+        wp_raw = await wp_resp.text();
+        try { wp_raw = JSON.parse(wp_raw); } catch (_) {}
+    }
+    return wp_raw;
+}
+
+/* 4) 渲染详情 */
+function wp_renderDetail(post, comments) {
+    document.getElementById("wpPostCard").style.display = "block";
+    document.getElementById("wpCommentsSection").style.display = "block";
+    document.getElementById("wpRawSection").style.display = "block";
+    document.getElementById("wpEmptyArea").innerHTML = "";
+
+    document.getElementById("wpPostTitle").textContent = post.title;
+    document.getElementById("wpPostId").textContent = post.id;
+    document.getElementById("wpPostUserId").textContent = post.userId;
+    document.getElementById("wpTitleLen").textContent = (post.title || "").length;
+    document.getElementById("wpBodyLen").textContent = (post.body || "").length;
+    document.getElementById("wpPostBody").textContent = post.body;
+
+    // 评论
+    var wp_commentsList = document.getElementById("wpCommentsList");
+    wp_commentsList.innerHTML = "";
+    for (var wp_i = 0; wp_i < comments.length; wp_i++) {
+        var wp_c = comments[wp_i];
+        var wp_div = document.createElement("div");
+        wp_div.className = "wp_comment";
+        wp_div.innerHTML =
+            '<div class="wp_comment-head">' +
+            '  <div class="wp_comment-avatar">' + (wp_c.name || "?").trim().charAt(0).toUpperCase() + '</div>' +
+            '  <div>' +
+            '    <div class="wp_comment-name">' + (wp_c.name || "(匿名)") + '</div>' +
+            '    <div class="wp_comment-email">✉ ' + (wp_c.email || "") + '</div>' +
+            '  </div>' +
+            '</div>' +
+            '<div class="wp_comment-body">' + (wp_c.body || "") + '</div>';
+        wp_commentsList.appendChild(wp_div);
+    }
+    document.getElementById("wpCommentsCount").textContent = comments.length;
+
+    // 原始 JSON
+    document.getElementById("wpRawPost").textContent = JSON.stringify(post, null, 2);
+    document.getElementById("wpRawComments").textContent = JSON.stringify(comments, null, 2);
+}
+
+/* 5) 渲染错误空态 */
+function wp_renderError(msg) {
+    document.getElementById("wpPostCard").style.display = "none";
+    document.getElementById("wpCommentsSection").style.display = "none";
+    document.getElementById("wpRawSection").style.display = "none";
+    document.getElementById("wpEmptyArea").innerHTML =
+        '<div class="wp_empty">' +
+        '<div class="wp-empty-icon">😢</div>' +
+        '<div>' + msg + '</div></div>';
+}
+
+/* 6) 主流程 */
+async function wp_init() {
+    var wp_status = document.getElementById("wp_status");
+    if (!wp_id || isNaN(wp_id)) {
+        wp_renderError("URL 参数错误：缺少 ?id=xxx 或 id 不是数字");
+        wp_status.className = "wp_status wp_err-s";
+        wp_status.textContent = "参数错误";
+        document.getElementById("wp_idBadge").textContent = "帖子 #?";
+        return;
+    }
+    document.getElementById("wp_idBadge").textContent = "帖子 #" + wp_id;
+
+    wp_status.className = "wp_status wp_loading-s";
+    wp_status.textContent = "⏳ 请求 /posts/" + wp_id + " + /comments ...";
+
+    try {
+        var wp_t0 = performance.now();
+        // Promise.all 并发请求两个接口（这是课程重点：Promise 并发）
+        var wp_results = await Promise.all([
+            wp_fetchJSON("https://jsonplaceholder.typicode.com/posts/" + wp_id),
+            wp_fetchJSON("https://jsonplaceholder.typicode.com/posts/" + wp_id + "/comments")
+        ]);
+        var wp_post = wp_results[0];
+        var wp_comments = Array.isArray(wp_results[1]) ? wp_results[1] : [];
+        var wp_dt = ((performance.now() - wp_t0) | 0);
+
+        wp_renderDetail(wp_post, wp_comments);
+        wp_status.className = "wp_status wp_ok-s";
+        wp_status.textContent = "✓ 帖子 + " + wp_comments.length + " 条评论 | Promise.all 耗时 " + wp_dt + "ms";
+
+    } catch (e) {
+        wp_renderError("请求失败: " + e.message);
+        wp_status.className = "wp_status wp_err-s";
+        wp_status.textContent = "✗ " + e.message;
+    }
+}
+
+wp_init();
+</script>
+</body>
+</html>

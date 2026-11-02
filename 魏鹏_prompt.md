@@ -105,3 +105,31 @@ Prompt: 创建ssh公钥，上传gitee
 ## 2026-10-29-16-39
 - Model: Kimi-K3
 - Prompt: 上传gith
+
+## 2026-11-02-15-36
+- Model: Kimi-K3
+- Prompt: 完成17-1.html，展示json
+
+## 2026-11-02-15-40
+- Model: Kimi-K3
+- Prompt: 完成17-2.html 获取一个接口的数据并展示。接口可以跨域访问。使用fetch和原生代码实现。
+
+## 2026-11-02-16-00
+- Model: Kimi-K3
+- Prompt: 完成17-2.html 获取一个`https://jsonplaceholder.typicode.com/posts`接口的数据并展示。接口可以跨域访问。使用fetch和原生代码实现
+
+## 2026-11-02-16-10
+- Model: Kimi-K3
+- Prompt: 完成17-3.html 和17-3-detail.html,显示列表和列表详情，数据来源于接口`https://jsonplaceholder.typicode.com/posts`，使用fetch
+
+## 2026-11-02-16-15
+- Model: Kimi-K3
+- Prompt: 完成17-4.html，对远程数据接口`https://jsonplaceholder.typicode.com/posts`进行测试，支持get、post等，显示返回的数据和错误提示信息
+
+## 2026-11-02-16-20
+- Model: Kimi-K3
+- Prompt: 完成17-5.html ，展示javascript的两种定时器。
+
+## 2026-11-02-16-25
+- Model: Kimi-K3
+- Prompt: 完成17-6.html,使用promise和async完成异步操作的演示包饺子的流程。先买原料，取原料，买完原料之后同时和面、和馅，两个活动都完成之后包饺子，包完饺子吃饺子。使用 settimeout模拟每一个流程，如买原料6s。在页面上显示流程。
